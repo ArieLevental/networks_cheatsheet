@@ -1,0 +1,117 @@
+\documentclass[landscape,a4paper]{article}
+
+% Page setup
+\usepackage[top=1mm,bottom=2mm,left=1mm,right=1mm]{geometry}
+\usepackage{multicol}
+\usepackage{microtype}
+
+% Math packages
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{dsfont}
+
+% Graphics and visual packages
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{shapes,positioning,arrows,fit,calc,graphs,graphs.standard}
+\usepackage{fancybox}
+\usepackage{array}
+
+% Code and algorithm packages
+\usepackage{algorithm,algorithmic}
+\usepackage{capt-of}
+\usepackage{listings}
+
+% Document utilities
+\usepackage{pdfpages}
+
+% Formatting and styling packages
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{helvet}
+
+% Font settings
+\renewcommand{\familydefault}{\sfdefault}
+
+% Document formatting settings
+\setcounter{secnumdepth}{0} % No section numbering
+\setlength{\fboxsep}{1pt} % Color box padding
+
+% Title formatting
+\titleformat{\section}{\fontsize{6pt}{6pt}\selectfont\bfseries}{\thesection}{0em}{\colorbox{yellow!70}}
+\titleformat{\subsection}{\fontsize{5pt}{5pt}\selectfont\bfseries}{\thesubsection}{0em}{\colorbox{green!20}}
+\titleformat{\subsubsection}{\fontsize{5pt}{5pt}\selectfont\bfseries}{\thesubsubsection}{0em}{\colorbox{blue!10}}
+\titlespacing{\section}{0pt}{0pt}{0pt}
+\titlespacing{\subsection}{0pt}{0pt}{0pt}
+\titlespacing{\subsubsection}{0pt}{0pt}{0pt}
+
+% Math symbols and spacing
+\renewcommand{\vdots}{\mathrel{\raisebox{0pt}{.}\kern-1.4pt\raisebox{1.2pt}{.}\kern-1.4pt\raisebox{2.4pt}{.}}}
+\renewcommand{\cdots}{\mathrel{\cdot\kern-2pt\cdot\kern-2pt\cdot}}
+
+% Macros
+\newcommand{\todo}{\textbf{\textcolor{red}{TODO }}}
+\newcommand{\revisit}{\textbf{\textcolor{orange}{REVISIT }}}
+
+\begin{document}
+
+% Grayed out text environment
+\newenvironment{graytext}{\color{gray}\ignorespaces}{}
+
+% Document settings
+\raggedright
+\fontsize{5pt}{5.2pt}\selectfont
+
+% Global indentation variables
+\newlength{\listindentone}
+\newlength{\listindenttwo}
+\setlength{\listindentone}{10pt}
+\setlength{\listindenttwo}{4pt}
+
+% List spacing control
+\setlist[itemize,1]{nosep,leftmargin=\listindentone}
+\setlist[enumerate,1]{nosep,leftmargin=\listindentone}
+\setlist[itemize,2]{nosep,leftmargin=\listindenttwo}
+\setlist[enumerate,2]{nosep,leftmargin=\listindenttwo}
+
+% Math environment spacing control
+\setlength{\abovedisplayskip}{0.5pt}
+\setlength{\belowdisplayskip}{0.5pt}
+\setlength{\abovedisplayshortskip}{1pt}
+\setlength{\belowdisplayshortskip}{1pt}
+\setlength{\arraycolsep}{0.5pt}
+\setlength{\jot}{1pt}
+
+% Table spacing control
+\setlength{\abovecaptionskip}{1pt}
+\setlength{\belowcaptionskip}{1pt}
+\setlength{\intextsep}{1pt}
+
+% Center environment spacing control
+\setlength{\topsep}{1pt}
+\setlength{\partopsep}{0pt}
+
+% Multi-column layout
+\begin{multicols*}{4}
+    \columnseprule=0.2pt
+
+    % Content sections
+    \input{subjects/interdomain_routing_&_bgp}
+    \input{subjects/math}
+    \input{subjects/math}
+    \input{subjects/math}
+    \input{subjects/math}
+    \input{subjects/general_concepts}
+    \input{subjects/regression}
+    \input{subjects/classification}
+    \input{subjects/pac}
+    \input{subjects/ensemble_methods}
+    \input{subjects/regularization}
+    \input{subjects/model_selection}
+    \input{subjects/unsupervised_learning}
+    \input{subjects/gradient_based_learning}
+    \input{subjects/neural_networks}
+\end{multicols*}
+
+\end{document}

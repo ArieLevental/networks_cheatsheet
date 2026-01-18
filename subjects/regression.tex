@@ -1,0 +1,50 @@
+\section{Regression}
+
+\subsection{Linear Regression}
+\begin{itemize}
+    \item \textbf{Hypothesis Class:} $\mathcal{H}_\mathit{lin} = \left\{ x \mapsto w_0 + x^\top w \mid w \in \mathbb{R}^d \right\}$
+    \item[] \textit{With intercept trick: } $\tilde{x} = [1; x] \Rightarrow \mathcal{H}_\mathit{lin} = \left\{ \tilde{x} \mapsto \langle w, \tilde{x} \rangle \mid w \in \mathbb{R}^{d+1} \right\}$
+    \item \textbf{Learning Principle:} ERM with respect to squared loss (RSS)
+    \item \textbf{Learning Algorithm} Minimize RSS:
+          \vspace{-0.7em}
+          \[ \hat{w} = \arg\min_w \|y - Xw\|_2^2 = \arg\min_w \sum_{i=1}^m (y_i - x_i^\top w)^2 \]
+          \vspace{-0.8em}
+\end{itemize}
+
+\textbf{Solutions:}
+\begin{itemize}
+    \item \textbf{Normal Equation:} $X^\top X \hat{w} = X^\top y$
+    \item \textbf{Closed-form Solution:} $\hat{w} = (X^\top X)^{-1} X^\top y$ \quad if $X^\top X$ is invertible
+    \item[] \textit{(Special case: $\hat{w} = X^{-1} y$ if $X$ is square and invertible)}
+    \item \textbf{SVD Solution:} When $X^\top X$ is not invertible, use SVD of $X$ to compute minimum-norm solution.
+          \textbf{SVD Decomposition:} $X = U \Sigma V^\top$.
+          \textbf{Pseudoinverse:} $X^\dagger = V \Sigma^\dagger U^\top$, where
+          \[
+              (\Sigma^\dagger)_{i,i} =
+              \begin{cases}
+                  \frac{1}{\sigma_i} & \text{if } \sigma_i > \epsilon \\
+                  0                  & \text{otherwise}
+              \end{cases}
+              \quad (\epsilon > 0 \text{ threshold})
+          \]
+          Solution: $\hat{w} = X^\dagger y$.
+\end{itemize}
+
+\subsection{Polynomial Regression (Fitting)}
+\begin{itemize}
+    \item \textbf{Hypothesis Class:} $\mathcal{H}_\mathit{poly} = \{x \mapsto \sum_{i=0}^d w_i x^i \mid w_i \in \mathbb{R}\}$
+    \item \textbf{Loss Function:} Squared loss
+    \item \textbf{Learning Principle:} ERM
+    \item \textbf{Learning Algorithm:} Minimize RSS using polynomial features
+    \item[] \textit{Note: High-degree polynomials reduce bias but increase variance}
+    \item \textbf{Feature Construction:} For $m$ samples $x_1,\ldots,x_m$, construct the \textbf{Vandermonde matrix} $X$:
+          \[
+              X = \begin{pmatrix}
+                  1      & x_1^1  & x_1^2  & \cdots & x_1^d  \\
+                  1      & x_2^1  & x_2^2  & \cdots & x_2^d  \\
+                  \vdots & \vdots & \vdots &        & \vdots \\
+                  1      & x_m^1  & x_m^2  & \cdots & x_m^d
+              \end{pmatrix}
+          \]
+    \item \textbf{Solution:} Solve $\hat{w} = \arg\min_w \|y - Xw\|^2$ (normal equation or closed-form solution).
+\end{itemize}

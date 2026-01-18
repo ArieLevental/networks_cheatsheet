@@ -1,0 +1,57 @@
+\section{PAC Framework}
+
+\subsection{PAC (Probably Approx. Correct) Learning}
+\textbf{Assumptions:}
+\begin{itemize}
+    \item Realizable: target function $f\in \mathcal{H}$.
+    \item No noise: $S \in (\mathcal{X} \times \mathcal{Y})^m = \{(x_i, f(x_i))\}_{i=1}^m$
+    \item Loss function is 0-1 (binary classification).
+    \item Data is i.i.d. from a fixed distribution $D$.
+\end{itemize}
+
+% PAC Learnability Definition
+\fbox{\begin{minipage}{0.98\linewidth}
+        \textbf{PAC Learnability:} $\mathcal{H}$ is PAC learnable if $\forall \epsilon >0, \forall \delta > 0$, $\exists m(\epsilon, \delta)$ s.t. for every distribution $\mathcal{D}$ and every $f \in \mathcal{H}$:
+        $\mathbb{P}_{\mathcal{D}^m}\left( L_{\mathcal{D},f}(\mathcal{A}(S_m)) < \epsilon \right) > 1 - \delta$
+    \end{minipage}}
+
+\textbf{Notes:}
+\begin{itemize}
+    \item The collection of PAC-learnable hypothesis classes is closed under complementation, and under finite union and finite intersection.
+\end{itemize}
+
+\subsection{Agnostic PAC (APAC) Learning}
+\textbf{Assumptions relaxation:} We only keep the assumption that data is i.i.d. from a fixed distribution. Now, labels may have noise, true labeling function may not be in the hypothesis class, and the loss function can be any (not just 0-1).
+
+% Agnostic PAC Learnability Definition
+
+\fbox{\begin{minipage}{0.98\linewidth}
+        \textbf{APAC Learnability:} A hypothesis class $\mathcal{H}$ is APAC learnable w.r.t. loss $\ell$ if there exists a function $\tilde{m}_{\mathcal{H}}:(0,1)^2 \to \mathbb{N}$ and a learning algorithm $\mathcal{A}:(\mathcal{X} \times \mathcal{Y})^m \to \mathcal{H}$ such that:
+        For every $(\epsilon, \delta) \in (0,1)$, for every distribution $\mathcal{D}$ over $\mathcal{X} \times \mathcal{Y}$, and for any $m \geq \tilde{m}_{\mathcal{H}}(\epsilon, \delta)$:
+        $\mathbb{P}_{\mathcal{D}}\left( L_{\mathcal{D}}(\mathcal{A}(S_m)) < \min_{f \in \mathcal{H}} L_{\mathcal{D}}(f) + \epsilon \right) > 1 - \delta$
+    \end{minipage}}
+
+% PAC vs Agnostic PAC Table
+\subsubsection{PAC vs. Agnostic PAC:}
+
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.3}
+\hspace*{-0.8em}\begin{tabular}{|l|m{2.15cm}|m{2.72cm}|}
+    \hline
+    \textbf{}     & \textbf{PAC}                             & \textbf{Agnostic PAC}                                                                          \\
+    \hline
+    $\mathcal{D}$ & $\mathcal{D}$ over $\mathcal{X}$         & $\mathcal{D}$ over $\mathcal{X} \times \mathcal{Y}$ No realizability assumption.               \\
+    \hline
+    Train.        & $x_i \sim \mathcal{D}$, $y_i = f(x_i)$   & $(x_i, y_i) \sim \mathcal{D}$                                                                  \\
+    \hline
+    Trgt          & $f \in \mathcal{H}$                      & Possibly not in $\mathcal{H}$; labels may be stochastic.                                       \\
+    \hline
+    Loss          & 0-1 loss & $\ell : \mathcal{H} \times (\mathcal{X}, \mathcal{Y}) \to \mathbb{R}_+$ \\
+    \hline
+    Risk          & $\mathbb{P}_{x \sim \mathcal{D}}[h(x) \neq f(x)]$ & $\mathbb{E}_{(x,y) \sim \mathcal{D}}[\ell(h, (x, y))]$ \\
+    \hline
+    Acc.          & $\mathrm{risk}(\hat{f}_s) \leq \epsilon$ & $\mathrm{risk}(\hat{f}_s) \leq \underset{f \in \mathcal{H}}{\min} \mathrm{risk}(f) + \epsilon$ \\
+    \hline
+\end{tabular}
+
+\subsection{VC Dimension}

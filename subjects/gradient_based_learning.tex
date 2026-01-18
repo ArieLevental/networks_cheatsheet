@@ -1,0 +1,51 @@
+\section{Gradient Based Learning}
+
+\textbf{Basic Idea} use an iterative optimization algorithm to minimize a loss function by updating parameters in the opposite direction of the gradient.
+
+\subsection{Sub-gradient Concepts}
+\begin{itemize}
+    \item \textbf{Sub-gradient:} $v$ is a sub-gradient of $f$ at $w$ if $f(u) \geq f(w) + \langle v, u-w \rangle$ for all $u$.
+    \item \textbf{Sub-differential:} $\partial f(w)$ is the set of all sub-gradients of $f$ at $w$.
+    \item \textbf{Convexity:} $f$ is convex if $f(tv + (1-t)u) \leq t f(v) + (1-t)f(u)$ for $t \in [0,1]$.
+    \item \textbf{Examples:} Halfspace, norm, sum of convex functions.
+    \item \textbf{Directional derivative:} $f(y) \geq f(x) + \langle \nabla f(x), y-x \rangle$ for differentiable $f$.
+\end{itemize}
+
+\subsection{Backtracking Line Search Algorithm}
+\noindent
+\fbox{\begin{minipage}{0.98\linewidth}
+        \begin{algorithmic}
+            \STATE Initialize: $\eta = 1$
+            \WHILE{$f(x) + \alpha \eta \langle \nabla f(x), \Delta x \rangle < f(x + \eta \Delta x)$}
+            \STATE $\eta \leftarrow \beta \eta$ \hspace{1em} ($\beta \in (0,1)$)
+            \ENDWHILE
+            \STATE Return $\eta$
+        \end{algorithmic}
+    \end{minipage}}
+
+\subsection{Sub-gradient Descent Algorithm}
+\noindent
+\fbox{\begin{minipage}{0.98\linewidth}
+        \begin{algorithmic}
+            \STATE Initialize: $w^{(1)} = 0$
+            \FOR{$t = 1, \ldots, T$}
+            \STATE Choose $v_t \in \partial f(w^{(t)})$
+            \STATE $w^{(t+1)} \leftarrow w^{(t)} - \eta_t v_t$
+            \ENDFOR
+            \STATE Return $\bar{w} = \frac{1}{T} \sum_{t=1}^T w^{(t)}$
+        \end{algorithmic}
+    \end{minipage}}
+
+\subsection{Stochastic Gradient Descent (SGD) Algorithm}
+\noindent
+\fbox{\begin{minipage}{0.98\linewidth}
+        \begin{algorithmic}
+            \STATE Initialize: $w^{(1)} = 0$
+            \FOR{$t = 1, \ldots, T$}
+            \STATE Choose $(x, y) \sim \mathcal{D}$
+            \STATE Choose $v_t \in \partial \ell(w^{(t)}, (x, y))$
+            \STATE $w^{(t+1)} \leftarrow w^{(t)} - \eta_t v_t$
+            \ENDFOR
+            \STATE Return $\bar{w} = \frac{1}{T} \sum_{t=1}^T w^{(t)}$
+        \end{algorithmic}
+    \end{minipage}}

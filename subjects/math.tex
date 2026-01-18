@@ -1,0 +1,152 @@
+\section{Mathematical Background}
+
+\subsection{Linear Algebra}
+\begin{itemize}
+      \item \textbf{Subspaces of \(A\in\mathbb R^{m\times n}\):}
+            \begin{itemize}
+                  \item \textbf{Column space:}
+                        \(\displaystyle \mathcal{C}(A)=\{Ax: x\in\mathbb R^n\}\)
+                  \item \textbf{Null space:}
+                        \(\displaystyle \mathcal{N}(A)=\{x: Ax=0\}\)
+                  \item \textbf{Row space:}
+                        \(\displaystyle \mathcal{C}(A^T)\subseteq\mathbb R^n\)
+            \end{itemize}
+      \item \textbf{Rank-nullity theorem:}
+            \(\displaystyle \dim\mathcal{C}(A)+\dim\mathcal{N}(A)=n\)
+      \item \textbf{Fundamental decompositions:}
+            \[
+                  \mathbb R^m=\mathcal{C}(A)\oplus\mathcal{N}(A^T),
+                  \qquad
+                  \mathbb R^n=\mathcal{C}(A^T)\oplus\mathcal{N}(A)
+            \]
+      \item \textbf{Invertibility (\(n\times n\) case):}
+            The following are equivalent:
+
+            \begin{graytext}(1)\end{graytext} $\det(A)\neq0$,\hspace{2.9em} \begin{graytext}(2)\end{graytext} $\mathrm{rank}(A)=n$,
+
+            \begin{graytext}(3)\end{graytext} $\ker(A)=\{0\}$,\hspace{1.5em} \begin{graytext}(4)\end{graytext} $\mathrm{im}(A)=\mathbb R^n$
+      \item \textbf{Orthogonal projection matrix \(P\):}
+            \[
+                  P^2=P,\quad P^T=P,\quad (I-P)P=0
+            \]
+      \item \textbf{Best‐approximation property:}
+            For a subspace \(V\) and any \(x\in\mathbb R^m\),
+            \[
+                  \|x-Px\|\le\|x-v\|\quad\forall v\in V
+            \]
+      \item \textbf{Constructing \(P\) from an orthonormal basis \(\{v_i\}_{i=1}^k\):}
+            % custom space reduction
+            \vspace{-0.7em}
+            \[
+                  P=\sum_{i=1}^k v_i\,v_i^T
+            \]
+            % custom space reduction
+            \vspace{-0.5em}
+      \item \textbf{Projection onto a single vector \(u\):}
+            \[
+                  P_u(v)
+                  =\frac{\langle v,u\rangle}{\|u\|^2}\,u
+            \]
+      \item \textbf{Inverse of a \(2\times2\) matrix:}
+            \[
+                  A=\begin{pmatrix}a&b\\c&d\end{pmatrix},\quad
+                  A^{-1}=\frac1{\det A}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}
+            \]
+      \item \textbf{Orthogonal matrices:}
+            \(A^TA=AA^T=I\), hence \(\det(A)=\pm1\) .
+\end{itemize}
+
+\subsubsection{Matrix Decompositions}
+\begin{itemize}
+      \item \textbf{Eigenvalue Decomposition (EVD):}
+            For symmetric $A = A^T \in \mathbb{R}^{n \times n}$:
+            $A = U\,\Lambda\,U^T$, where $U$ is orthogonal, $\Lambda = \mathrm{diag}(\lambda_1, \dots, \lambda_n)$ ($\lambda_i$ are eigenvalues). $A^k = U\,\Lambda^k\,U^T$, $A^{-1} = U\,\Lambda^{-1}\,U^T$ if all $\lambda_i \neq 0$.
+      \item \textbf{Singular Value Decomposition (SVD):}
+            (For any $A \in \mathbb{R}^{m \times n}$): $A = U\,\Sigma\,V^T$, where $U$ and $V$ are orthogonal, $\Sigma = \mathrm{diag}(\sigma_1, \dots, \sigma_r)$ ($\sigma_i$ are singular values, $r = \mathrm{rank}(A)$). $A^T A = V\,\Sigma^2\,V^T$, so \(\sigma_i^2\ge0\) are eigenvalues of $A^T A$.
+\end{itemize}
+
+\subsubsection{Positive (Semi-) Definite Matrices}
+\begin{itemize}
+      \item \textbf{Positive semi-definite (PSD):}
+            \(A=A^T\) and
+            \(\displaystyle x^T A x \ge0\) for all \(x\in\mathbb R^n\)
+      \item \textbf{Equivalent characterizations:}
+            \begin{itemize}
+                  \item All eigenvalues \(\lambda_i\ge0\)
+                  \item There exists \(B\) such that \(A = B^T B\)
+            \end{itemize}
+\end{itemize}
+
+\subsection{Probability}
+\begin{itemize}
+      \item \textbf{Covariance transformation:}
+            If \(z\) is a random vector with \(\mathbb E[z]=0\), then
+            \vspace{-0.7em}
+            \[
+                  \mathrm{Var}(A z)
+                  = A\,\mathrm{Var}(z)\,A^T
+            \]
+\end{itemize}
+
+\subsection{Calculus}
+\begin{itemize}
+      \item \textbf{Exponential bound:} $1 - x \;\le\; e^{-x},\quad \forall x\in\mathbb R$
+      \item \textbf{Gradient of a scalar \(f:\mathbb{R}^n\to\mathbb{R}\):}
+            \[
+                  \nabla f
+                  = \Bigl(\tfrac{\partial f}{\partial x_1},\dots,\tfrac{\partial f}{\partial x_n}\Bigr)^T
+            \]
+      \item \textbf{Jacobian of a vector \(f:\mathbb{R}^n\to\mathbb{R}^m\):}
+            \[
+                  J_x(f)
+                  = \begin{pmatrix}
+                        \frac{\partial f_1}{\partial x_1} & \cdots & \frac{\partial f_n}{\partial x_1} \\
+                        \vdots                            & \cdots & \vdots                            \\
+                        \frac{\partial f_1}{\partial x_d} & \cdots & \frac{\partial f_n}{\partial x_d}
+                  \end{pmatrix}
+                  = \bigl[\;\nabla f_1\;\cdots\;\nabla f_m\bigr]
+            \]
+      \item \textbf{Chain rule:} $J_x(g\circ f) = J_{\,f(x)}(g)\cdot J_x(f)$
+      \item \textbf{Hessian of a scalar \(f\):}
+            \[
+                  H(f)
+                  = \begin{pmatrix}
+                        \frac{\partial^2f}{\partial x_1^2}           & \cdots & \frac{\partial^2f}{\partial x_1\partial x_n} \\
+                        \vdots                                       & \cdots & \vdots                                       \\
+                        \frac{\partial^2f}{\partial x_n\partial x_1} & \cdots & \frac{\partial^2f}{\partial x_n^2}
+                  \end{pmatrix}
+            \]
+      \item \textbf{Taylor expansions about \(x_0\):}
+            \begin{align}
+                  % custom indent reduction
+                   & \hspace{-1.5em}f(x)\approx f(x_0)+\langle\nabla f(x_0),\,x-x_0\rangle
+                  \quad\text{(1st order)},\nonumber                                                 \\
+                   & \hspace{-1.5em}f(x)\approx f(x_0)+\langle\nabla f(x_0),\,x-x_0\rangle\nonumber \\
+                   & \hspace{-1.5em}\quad+\tfrac12\,(x-x_0)^T\,H(f(x_0))\,(x-x_0)
+                  \quad\text{(2nd order)}.\nonumber
+            \end{align}
+      \item \textbf{Some common gradients / Jacobians:}
+            \begin{itemize}
+                  \item $\nabla\Bigl(\tfrac12\|Ax-y\|^2\Bigr) = A^T(Ax-y)$
+                  \item $\nabla\bigl(\|w\|^2\bigr) = 2w$
+                  \item $J_w(A\,w) = A$
+            \end{itemize}
+\end{itemize}
+
+\subsubsection{Convexity}
+\begin{itemize}
+      \item \textbf{Convexity via Hessian:}
+            \begin{itemize}
+                  \item \(H(f)\succeq0\) (PSD) \(\implies\) \(f\) is convex
+                  \item \(H(f)\preceq0\) (NSD) \(\implies\) \(f\) is concave
+            \end{itemize}
+      \item \textbf{Convex set:} $C$ is convex if $\forall u,v\in C,\ \forall \alpha\in[0,1]:\ \alpha u + (1-\alpha)v \in C$.
+      \item[] e.g. Unit Ball, Halfspace, Intersection or sum of convex sets.
+      \item \textbf{Convex function:} $f$ is convex on $C$ if $\forall u,v\in C,\ \forall \alpha\in[0,1]:\ f(\alpha u + (1-\alpha)v) \leq \alpha f(u) + (1-\alpha)f(v)$.
+      \item \textbf{Preserved properties:}
+            \begin{itemize}
+                \item \textbf{Non-negative sum:} $f = \sum a_i f_i$ is convex if $f_i$ convex, $a_i \geq 0$.
+                \item \textbf{Affine composition:} $g(x) = f(Ax + b)$ is convex if $f$ convex.
+                \item \textbf{Maximization:} $g(x) = \sup_{y\in A} f(x, y)$ is convex if $f(x, y)$ convex in $x$ for each $y$.
+            \end{itemize}
+\end{itemize}

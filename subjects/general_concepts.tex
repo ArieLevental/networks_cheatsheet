@@ -1,0 +1,59 @@
+\section{General Concepts}
+
+\subsection{Modes}
+\textbf{Oracle} (full information), (model) \textbf{Evaluation}, \textbf{Training} (calibration)
+
+\subsection{Hat Notation}
+$\hat{f}$, $\hat{\theta}$, $\hat{y}$ = estimated/learned values. Goal: $\hat{f} \approx f$
+
+\subsection{Noise Model}
+$y_i = f(x_i) + z_i$ where often assume $z_i \sim \mathcal{N}(\mu, \sigma^2)$
+
+\subsection{Four Stages in Learning Problems}
+\begin{enumerate}
+    \item \textbf{Choosing Hypothesis Class:} e.g $\mathcal{H}_{\mathit{lin}}$, $\mathcal{H}_{\mathit{poly}}$
+    \item \textbf{Choosing Loss Function} (per sample), e.g.:
+          \begin{itemize}[nosep,leftmargin=\listindenttwo]
+              \item 0-1: $L(y, \hat{y}) = \mathbf{1}_{y \neq \hat{y}}$
+              \item Hinge: $L(y, \hat{y}) = \max(0, 1 - y\hat{y})$
+              \item Absolute: $L(y, \hat{y}) = |y - \hat{y}|$
+              \item Squared: $L(y, \hat{y}) = (y - \hat{y})^2$
+          \end{itemize}
+    \item \textbf{Choosing Learning Principle:} e.g. ERM (Empirical Risk Minimization, almost always used)
+    \item \textbf{Designing Learning Algorithm:} e.g. SVD, Gradient Descent, Random Forest, SVM
+\end{enumerate}
+
+\subsection{Risk Measures}
+\begin{itemize}
+    \item \textbf{True / Expected Risk} (Generalization Error): $R(h) = \mathbb{E}_{(x, y) \sim \mathcal{D}}[\ell(h(x), y)]$
+    \item \textbf{Empirical Risk:} $\hat{R}(h) = \frac{1}{n}\sum_{i=1}^n L(y_i, h(x_i))$
+    \item \textbf{RSS} (Residual Sum of Squares): $\sum_{i=1}^n (y_i - \hat{y}_i)^2$
+    \item \textbf{MSE} (Mean Squared Error): $\frac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2$
+    \item[] \textit{Note: Empirical risk with squared loss = MSE}
+\end{itemize}
+
+\subsection{Bias-Variance Tradeoff}
+\textbf{Bias:} error caused by overly simplistic assumptions (underfitting). \\
+\textbf{Variance:} error from sensitivity to training data (overfitting). \\
+\textbf{Tradeoff:} More complex models reduce bias but increase variance. \\
+Goal: find balance to minimize total error.
+% \[
+% L_D(h_S) = \underbrace{L_D(h^*)}_{\approx \text{Bias}} + \underbrace{\big(L_D(h_S) - L_D(h^*)\big)}_{\approx \text{Variance}}
+% \]
+
+\subsection{No Free Lunch (NFL) Theorem}
+No universally best algorithm. Must choose $\mathcal{H}_\theta$ with prior knowledge.
+
+\subsection{Hyperparameters}
+Set before training using prior knowledge. e.g. learning rate, batch size, epochs, model architecture
+
+\subsection{ML in Practice}
+\begin{itemize}
+    \item \textbf{Data Preprocessing:} Cleaning, normalization, augmentation
+    \item \textbf{Model Selection:} Choosing the right model architecture
+    \item \textbf{Hyperparameter Tuning:} Grid search, random search, Bayesian optimization
+    \item \textbf{Evaluation:} Cross-validation, train-test split, performance metrics
+    \item \textbf{Deployment:} Model serving, monitoring, updating
+    \item \textbf{Data Contamination:} \todo
+    \item \textbf{Analytical vs. Numerical Methods:} \revisit Analytical methods (e.g. Normal Equations) provide exact and closed-form solutions, while numerical methods (e.g. Gradient Descent) approximate solutions, but are often more flexible and applicable to larger datasets.
+\end{itemize}

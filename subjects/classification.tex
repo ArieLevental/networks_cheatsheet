@@ -1,0 +1,83 @@
+\section{Classification}
+
+\subsection{Evaluation Metrics}
+\begin{center}
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{|c|c|c|}
+        \hline
+                       & \textbf{Positive} & \textbf{Negative} \\
+        \hline
+        \textbf{True}  & TP                & TN                \\
+        \hline
+        \textbf{False} & FP                & FN                \\
+        \hline
+    \end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Accuracy:} $\frac{TP + TN}{TP + TN + FP + FN}$
+    \item \textbf{Precision:} $\frac{TP}{TP + FP}$, \textbf{Recall:} $\frac{TP}{TP + FN}$
+    \item \textbf{Specificity:} $\frac{TN}{TN + FP}$, \textbf{F1:} $2 \cdot \frac{P \cdot R}{P + R}$
+    \item \textbf{FPR:} $\frac{FP}{FP + TN}$, \textbf{FNR:} $\frac{FN}{FN + TP}$
+\end{itemize}
+
+\subsection{Half-spaces}
+\begin{itemize}
+    \item \textbf{Hypothesis:} $\mathcal{H}_{\mathit{half}} = \{x \mapsto \mathrm{sign}(\langle x, w \rangle + b)\}$
+    \item \textbf{Loss:} $L_s(h_w) = \sum_{i=1}^m \mathds{1}_{[y_i \langle x_i, w \rangle < 0]}$
+    \item \textbf{ERM:} $\arg\min_w$ s.t. $\mathrm{diag}(y) \cdot X^T w \geq 1$
+\end{itemize}
+
+\subsection{Baseline (Perceptron) Algorithm}
+
+\noindent
+\fbox{\begin{minipage}{0.98\linewidth}
+        \begin{algorithmic}
+            \STATE \textbf{Initialize:} $w = \vec{0}$
+            \WHILE{$\exists i$ s.t. $y_i \langle x_i, w \rangle \leq 0$}
+            \STATE $w \leftarrow w + y_i x_i$
+            \ENDWHILE
+        \end{algorithmic}
+    \end{minipage}}
+
+\subsection{Support Vector Machine (SVM)}
+\begin{itemize}
+    \item \textbf{Hypothesis:} $\mathcal{H}_{\mathit{svm}} = \{x \mapsto \mathrm{sign}(\langle x, w \rangle + b)\}$
+    \item \textbf{Margin:} $D((b, w), x_i) = \min_{v: \langle v, w \rangle + b = 0} \|x_i - v\|$
+    \item \textbf{If} $\|w\| = 1$, $D((b, w), x_i) = |\langle x_i, w \rangle + b|$
+    \item \textbf{Hard-SVM:} $\arg\min_{w, b} \|w\|^2$ s.t. $y_i (\langle x_i, w \rangle + b) \geq 1$
+    \item \textbf{Soft-SVM:} $\arg\min_{w, b} \lambda \|w\|^2 + \frac{1}{m} \sum_{i=1}^m \xi_i$ s.t. $y_i (\langle x_i, w \rangle + b) \geq 1 - \xi_i$, $\xi_i \geq 0$
+    \item \textbf{Equivalent:} $\arg\min_w \lambda \|w\|^2 + \frac{1}{m} \sum_{i=1}^m \max(0, 1 - y_i (\langle x_i, w \rangle + b))$ (hinge loss)
+    \item[] \textit{Margin = weighted norm of $w$}
+\end{itemize}
+
+\subsection{Logistic Regression}
+\begin{itemize}
+    \item \textbf{Hypothesis:} $h_w(x) = \sigma(w^\top x)$, where $\sigma(z) = \frac{1}{1 + e^{-z}}$ (sigmoid)
+    \item \textbf{Loss Function:} Logistic (cross-entropy) loss: $\ell(w) = -\sum_{i=1}^m [y_i \log h_w(x_i) + (1-y_i) \log(1-h_w(x_i))]$
+    \item \textbf{Learning Principle:} ERM
+    \item \textbf{Learning Algorithm:} Minimize loss using gradient descent (no closed-form solution)
+    \item \textbf{Gradient:} $\nabla \ell(w) = \sum_{i=1}^m (h_w(x_i) - y_i)x_i$
+    \item[] \textit{Note: Outputs are probabilities, decision by threshold (e.g., $h_w(x) > 0.5$)}
+\end{itemize}
+
+\subsection{K Nearest Neighbors (KNN)}
+\begin{itemize}
+    \item \textbf{Distance:} Euclidean: $\rho(x, z) = \sum_{j=1}^d (x_j - y_j)^2$
+    \item \textbf{Prediction:} $\arg\max_{y \in \mathcal{Y}} \sum_{i=1}^k \mathds{1}_{[y_{\pi(i)} = y]}$ (majority label among $k$ nearest neighbors)
+    \item \textbf{Algorithm:} For each sample, compute distance to all others, select $k$ closest, predict by majority.
+    \item \textbf{Complexity:} $O(md)$ ($m$ = samples, $d$ = features)
+    \item \textbf{Bias-Variance:} Larger $k$ $\rightarrow$ higher bias, lower variance (model less complex)
+\end{itemize}
+
+\subsection{Classification Trees}
+\begin{itemize}
+    \item \textbf{Hypothesis:} $\mathcal{H}_{CT}^k = \left\{ x \mapsto \sum_{j=1}^N c_j \cdot \mathds{1}_{[x \in B_j]} \right\}$
+    \item $N$ = number of leaves, $k$ = max depth, $B_j$ = partition (leaf), $c_j$ = label for $B_j$
+    \item \textbf{Prediction:} Assign $x$ to the label of its leaf.
+    \item \textbf{Leaf label:} $P_y^S(B) = \frac{1}{n_S(B)} \sum_{x_i \in B} \mathds{1}_{[y_i = y]}$ (majority in leaf)
+    \item \textbf{Tree Growth:} Recursively split data by features to maximize purity, until max depth or min samples per leaf.
+    \item \textbf{Complexity:} $O(m d 2^k)$ ($m$ = samples, $d$ = features, $k$ = depth)
+    \item \textbf{Pruning:} After growing, prune to reduce variance: $\min_{T \subseteq T_0} [L_S(T) + \lambda |T|]$ (tradeoff size/loss)
+    \item \textbf{Bias-Variance:} Deeper tree $\rightarrow$ lower bias, higher variance.
+\end{itemize}

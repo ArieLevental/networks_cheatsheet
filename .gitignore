@@ -1,0 +1,60 @@
+# LaTeX build artifacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.idx
+*.ind
+*.ilg
+*.lot
+*.lof
+*.synctex.gz
+*.synctex(busy)
+*.pdfsync
+*.nav
+*.snm
+*.vrb
+
+# LaTeX temporary files
+*.figlist
+*.makefile
+*.4ct
+*.4tc
+*.idv
+*.lg
+*.tmp
+*.xref
+
+# LaTeX auto-generated files
+*-converted-to.*
+*.fmt
+*.fmt.log
+*.auxlock
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Build directories
+build/
+dist/
+out/
+
+# PDF output (uncomment if you don't want to track the final PDF)
+# *.pdf
