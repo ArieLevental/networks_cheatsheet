@@ -100,6 +100,16 @@
 	\item Root selection: prefer lower RID; then lower DTR; then lower SID (tie-break).
 \end{itemize}
 
+\subsection{Errors Detection}
+\begin{itemize}
+	\item Goal: detect (and sometimes correct) bit errors introduced by noise on the link.
+	\item \textbf{Repetition code (3-repetition):} send each bit 3 times; majority vote corrects 1 error, detects up to 2.
+	\item \textbf{1D parity:} add one parity bit so total 1s is even/odd; detects any odd number of bit errors, cannot locate/correct.
+	\item \textbf{2D parity:} arrange bits in a matrix with row+column parity; detects many multi-bit errors and can correct a single-bit error (intersection).
+	\item \textbf{CRC:} \todo \textbf{Consider removing this if not in Exams} treat bits as polynomial over $GF(2)$; append $r$-bit remainder so frame is divisible by generator $G(x)$.
+	\item CRC detects all single-bit errors, all burst errors of length $\le r$, and most longer bursts (prob. of miss $\approx 2^{-r}$).
+\end{itemize}
+
 \section{"Layer 2.5" - ARP}
 ARP is generally considered to be part of Layer 2 (Data Link Layer), but it works directly to support Layer 3 (Network Layer).
 \begin{itemize}

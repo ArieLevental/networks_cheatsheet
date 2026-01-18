@@ -14,3 +14,28 @@
     \textbf{IP Packet Diagram}
     \includegraphics[width=0.9\columnwidth]{images/ip_packet_diagram.png}
 \end{center}
+
+\subsection{NAT (Network Address Translation)}
+\begin{itemize}
+	\item Translates internal private IPs to a smaller set of public IPs (often one) using port mapping.
+	\item Internal hosts use private ranges (e.g., 192.168.x.x); NAT exposes a single public IP to the Internet.
+	\item \textbf{Advantages:}
+	\begin{itemize}
+		\item Conserves public IPv4 addresses; many hosts share one public IP.
+		\item Hides internal addressing and allows renumbering without changing external addresses.
+		\item Basic inbound shielding (unsolicited inbound blocked unless mapped).
+	\end{itemize}
+	\item \textbf{How it works:}
+	\begin{itemize}
+		\item NAT maintains a translation table mapping $(\text{private IP}, \text{private port}) \leftrightarrow (\text{public IP}, \text{public port})$.
+		\item For outbound packets, NAT rewrites source IP:port and records the mapping.
+		\item For inbound packets, NAT looks up the destination port and rewrites to the internal host; if no mapping, it drops.
+	\end{itemize}
+	\item \textbf{Why it doesn't fully solve IPv4 shortage:}
+	\begin{itemize}
+		\item Breaks end-to-end connectivity; inbound connections need port forwarding/ALGs.
+		\item Adds per-packet processing and state; can increase latency and complexity.
+		\item Scalability: still limited by public IPs for NAT gateways and port space.
+	\end{itemize}
+\end{itemize}
+

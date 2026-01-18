@@ -42,4 +42,9 @@ Servers return a \textbf{TTL}; the answer is cached for that duration.
 		\item \textbf{DHCP ACK:} server confirms lease; may broadcast so others know address in use.
 	\end{itemize}
 	\item \textbf{DHCP relaying:} if DHCP server not on local subnet, relay forwards messages to server on another network.
+	\item \textbf{Why it doesn't fully solve IPv4 shortage:}
+	\begin{itemize}
+		\item \textbf{Peak demand}: works only if simultaneously active devices $<$ pool size; if everyone connects at once, the pool still runs out.
+		\item \textbf{Temporary fix}: improves reuse but does not increase the global IPv4 address space ($2^{32}$).
+	\end{itemize}
 \end{itemize}
