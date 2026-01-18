@@ -1,1 +1,70 @@
 \section{Link Layer \& Local Area Networks (LAN)}
+\subsection{Shared Medium Intuition}
+\begin{itemize}
+	\item Nodes broadcast on same channel; only one can transmit at a time.
+	\item Simultaneous transmit $\Rightarrow$ collision $\Rightarrow$ data lost.
+	\item Sender uses full link bandwidth while transmitting.
+\end{itemize}
+
+\subsection{Definitions}
+\begin{itemize}
+	\item \textbf{Bandwidth:} max data rate of channel ($B$).
+	\item \textbf{Throughput:} fraction of bandwidth used to send traffic.
+	\item \textbf{Goodput:} fraction of bandwidth used for successful data.
+	\item $\eta=\frac{\text{avg effective bandwidth}}{\text{total bandwidth}}=\frac{\text{avg effective time}}{\text{total time}}$, $0\le\eta\le1$.
+\end{itemize}
+
+\subsection{Multiple Access Domains}
+\begin{itemize}
+    \item \textbf{Multiple Access Domain:} set of nodes sharing a common channel.
+    \item \textbf{Channel Partitioning:} divide channel into smaller "pieces" (time/freq/code).
+    \item \textbf{Random Access:} transmit at will; handle collisions (ALOHA, CSMA).
+    \item \textbf{Taking Turns:} nodes take turns to transmit (polling/token passing).
+\end{itemize}
+\subsection{ALOHA protocol}
+\begin{itemize}
+	\item Random access on shared medium; collisions if overlap. Frame time $T$ (size $L$, rate $B$): $T=L/B$.
+	\item \textbf{Binomial model:} $N$ users, each transmits in a slot w.p. $p$.
+	\item \textbf{Poisson model:} aggregate attempts are Poisson with rate $G$ (attempts/slot).
+	\item \textbf{Slotted ALOHA (align to slots):}
+	\begin{itemize}
+		\item Success if exactly one tx in a slot.
+		\item Binomial: $P(\text{succ})=Np(1-p)^{N-1}$, max at $p=1/N$ gives $S_{\max}\approx 1/e$.
+		\item Poisson: $S=Ge^{-G}$, $S_{\max}=1/e$ at $G=1$.
+	\end{itemize}
+	\item \textbf{Pure ALOHA (no slots):}
+	\begin{itemize}
+		\item Vulnerable period $2T$.
+		\item Binomial (approx): $P(\text{succ})\approx Np(1-p)^{2(N-1)}$, max at $p\approx 1/(2N)$ gives $S_{\max}\approx 1/(2e)$.
+		\item Poisson: $S=Ge^{-2G}$, $S_{\max}=1/(2e)$ at $G=1/2$.
+	\end{itemize}
+\end{itemize}
+
+\subsection{CSMA (Carrier Sense Multiple Access)}
+\begin{itemize}
+    \item Listen before tx; if channel idle, transmit entire frame; else wait.
+    \item \textbf{Propagation delay} $\tau$: time for signal to propagate between 2 farthest nodes.
+    \item \textbf{CSMA/CD (Collision Detection):} abort tx on collision detection; reduces wasted time.
+    \item \textbf{CSMA/CD efficiency:} $\eta=\frac{1}{1+5\frac{d_{\text{prop}}}{d_{\text{trans}}}}$.
+\end{itemize}
+
+\subsubsection{CSMA/CD}
+
+
+\subsection{Single (Logical) Link in practice}
+\subsubsection{MAC Addresses}
+\begin{itemize}
+	\item Link-layer address unique per NIC (Network Interface Card); assigned by IEEE OUI.
+	\item Used to deliver frames on same LAN; flat (non-hierarchical), portable across LANs.
+	\item Usually burned-in, but can be software-set.
+\end{itemize}
+\subsubsection{Ethernet}
+\begin{itemize}
+	\item Dominant wired LAN; many speed generations; cheap NICs.
+	\item \textbf{CSMA/CD (classic shared medium):}
+	\begin{enumerate}
+		\item Sense channel; if idle transmit, else wait.
+		\item If collision detected while tx, abort and send jam.
+		\item \textbf{Binary exponential backoff:} after $m$-th collision pick $k\in\{0,\ldots,2^m-1\}$, wait $k\cdot512$ bit-times, retry.
+	\end{enumerate}
+\end{itemize}
