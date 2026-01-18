@@ -1,8 +1,10 @@
 \section{General Concepts}
 \subsection{General Terms}
 \begin{itemize}
+    \item \textbf{Bandwidth:} max data rate of a link (bits/sec).
     \item \textbf{Goodput:} proportion of successful slots (transmission without collision).
     \item \textbf{Throughput:} proportion of slots with a transmission (success or not).
+    \item \textbf{Propagation time:} time for a signal to travel between two nodes.
 \end{itemize}
 
 \subsection{Mathematical Foundations}
@@ -15,14 +17,18 @@
     \item \textbf{Memoryless:} $P(X>s+t\mid X>t)=P(X>s)$ (Geo/Exp).
 \end{itemize}
 
-\begin{tabular}{l|c|c|c|c}
-\textbf{Dist.} & \textbf{PMF} & \textbf{Notation} & $\mathbb{E}[X]$ & $\mathrm{Var}(X)$ \\
-\hline
-Bernoulli & $P(X=1)=p$ & $\mathrm{Ber}(p)$ & $p$ & $p(1-p)$ \\
-Binomial & $\binom{n}{k}p^k(1-p)^{n-k}$ & $\mathrm{Bin}(n,p)$ & $np$ & $np(1-p)$ \\
-Geometric & $(1-p)^{k-1}p$ & $\mathrm{Geo}(p)$ & $\frac{1}{p}$ & $\frac{1-p}{p^2}$ \\
-Poisson & $\frac{\lambda^k e^{-\lambda}}{k!}$ & $\mathrm{Pois}(\lambda)$ & $\lambda$ & $\lambda$ \\
-\end{tabular}
+\begin{center}
+    \renewcommand{\arraystretch}{1.15}
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{l|c|c|c|c}
+        \textbf{Dist.} & \textbf{PMF} & \textbf{Notation} & $\mathbb{E}[X]$ & $\mathrm{Var}(X)$ \\
+        \hline
+        Bernoulli & $P(X=1)=p$ & $\mathrm{Ber}(p)$ & $p$ & $p(1-p)$ \\
+        Binomial & $\binom{n}{k}p^k(1-p)^{n-k}$ & $\mathrm{Bin}(n,p)$ & $np$ & $np(1-p)$ \\
+        Geometric & $(1-p)^{k-1}p$ & $\mathrm{Geo}(p)$ & $\frac{1}{p}$ & $\frac{1-p}{p^2}$ \\
+        Poisson & $\frac{\lambda^k e^{-\lambda}}{k!}$ & $\mathrm{Pois}(\lambda)$ & $\lambda$ & $\lambda$ \\
+    \end{tabular}
+\end{center}
 
 \subsection{Computer networks vs Distributed systems}
 \subsubsection{Circuit and Packet Switching}
@@ -35,5 +41,5 @@ Poisson & $\frac{\lambda^k e^{-\lambda}}{k!}$ & $\mathrm{Pois}(\lambda)$ & $\lam
     \item \textbf{Link:} Frames on local network, MAC addressing, error detection.
     \item \textbf{Network:} Packet delivery across networks, routing (IP).
     \item \textbf{Transport:} End-to-end process communication, reliability/flow control (TCP/UDP).
-    \item \textbf{Application:} End-user services/protocols (HTTP, SMTP, DNS, etc.).
+    \item \textbf{Application:} End-user services/protocols (DNS, DHCP, HTTP, FTP etc.).
 \end{itemize}

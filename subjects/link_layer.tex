@@ -48,8 +48,23 @@
     \item \textbf{CSMA/CD efficiency:} $\eta=\frac{1}{1+5\frac{d_{\text{prop}}}{d_{\text{trans}}}}$.
 \end{itemize}
 
-\subsubsection{CSMA/CD}
-
+\subsubsection{CSMA/CD (Collision Detection)}
+\begin{itemize}
+	\item Detect collisions while transmitting; send jam; then backoff and retry.
+	\item \textbf{Binary exponential backoff:} after $m$-th collision pick $k\in\{0,\ldots,2^m-1\}$, wait $k$ slots.
+\end{itemize}
+\subsubsection{CSMA/CA (Collision Avoidance)}
+\begin{itemize}
+	\item Used in Wi-Fi: cannot detect collisions reliably, so avoid them.
+	\item If channel idle, wait DIFS then transmit; if busy, pick random backoff slots.
+	\item Receiver replies with ACK after SIFS; missing ACK implies collision.
+\end{itemize}
+\subsubsection{CSMA persistence}
+\begin{itemize}
+	\item \textbf{1-persistent:} transmit immediately when channel becomes idle (high collision under load).
+	\item \textbf{0-persistent:} wait random backoff after busy (lower collision, higher delay).
+	\item \textbf{$p$-persistent:} when idle, transmit with prob. $p$ each slot (tradeoff).
+\end{itemize}
 
 \subsection{Single (Logical) Link in practice}
 \subsubsection{MAC Addresses}
@@ -67,4 +82,38 @@
 		\item If collision detected while tx, abort and send jam.
 		\item \textbf{Binary exponential backoff:} after $m$-th collision pick $k\in\{0,\ldots,2^m-1\}$, wait $k\cdot512$ bit-times, retry.
 	\end{enumerate}
+\end{itemize}
+
+\subsection{Interconnecting broadcast domains}
+\begin{itemize}
+	\item \textbf{Switch:}
+    \begin{itemize}
+        \item link-layer device that breaks broadcast domains; stores/forwards frames using MAC table.
+        \item Transparent to hosts; self-learning (no manual config), entries age out (TTL).
+        \item Each link is its own collision domain; enables simultaneous transmissions.
+        \item Forwarding: if dest known on incoming port $\Rightarrow$ drop; else forward to port; if unknown $\Rightarrow$ flood.
+		\item \textbf{Switch table:} (MAC, port, TTL). Learn from source MAC+ingress port on each frame.
+    \end{itemize}
+    \item \textbf{Loops:} cause broadcast storms, multiple frame copies, MAC table instability.
+	\item \textbf{Spanning Tree Protocol (STP):} disable links to eliminate loops; elect root, compute shortest-path tree.
+	\item \textbf{HELLO/BPDU fields:} SID (switch ID), RID (root ID), DTR (distance to root).
+	\item Root selection: prefer lower RID; then lower DTR; then lower SID (tie-break).
+\end{itemize}
+
+\section{"Layer 2.5" - ARP}
+ARP is generally considered to be part of Layer 2 (Data Link Layer), but it works directly to support Layer 3 (Network Layer).
+\begin{itemize}
+    \item Why it's Layer 2: ARP messages are encapsulated directly into Ethernet frames. They do not have an IP header (Layer 3) and they cannot be routed outside of your local network (LAN).
+    \item Why it feels like Layer 3: Its entire purpose is to handle Layer 3 information (IP addresses). It is the mechanism that allows Layer 3 to actually function on physical hardware.
+\end{itemize}
+\subsection{Address Resolution Protocol (ARP)}
+\begin{itemize}
+	\item Translates between MAC addresses and IP addresses on a LAN.
+	\item Needed because Layer 3 provides the IP, but frames on Layer 2 need a destination MAC.
+	\item To send outside the LAN, the packet uses the IP of the destination but the MAC of the next-hop router; routers then forward using their own L2 on each hop.
+	\item Hosts use DHCP and routing to know whether the destination IP is on the same LAN or remote.
+	\item Each node maintains an \textbf{ARP cache} (IP $\rightarrow$ MAC table).
+	\item If the mapping is missing, send an \textbf{ARP request} (broadcast in the local broadcast domain).
+	\item The target replies with an \textbf{ARP response} containing its MAC, which is stored in the cache.
+	\item ARP messages stay within a single broadcast domain (not routed).
 \end{itemize}

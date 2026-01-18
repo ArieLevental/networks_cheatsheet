@@ -1,0 +1,45 @@
+\section{Application Layer (HTTP, DNS, SMTP \& FTP)}
+
+\subsection{DNS (Domain Name System)}
+Maps between hostnames and IP addresses. Each server is authoritative for its domain and can resolve queries or forward them; resolution ends when an authoritative server replies or the requested data is found in cache.
+
+\textbf{Record types:}
+\begin{itemize}
+	\item \textbf{A}: maps an Internet hostname to an IP address.
+	\item \textbf{NS}: maps a domain name (e.g., \texttt{google.com}) to the server responsible for it.
+	\item \textbf{CNAME}: maps a hostname to its canonical name, e.g., \texttt{wedsac.mit.com} is actually \texttt{www.mit.com}.
+	\item \textbf{PTR}: reverse of A (IP address to hostname).
+	\item \textbf{MX}: maps a hostname to the mail server that handles it.
+\end{itemize}
+
+DNS queries and replies use UDP and typically port 53 (smaller packets for requests/replies).
+
+Servers return a \textbf{TTL}; the answer is cached for that duration.
+
+\textbf{Glued response:} if the client needs to query the authoritative server but does not know its IP, the server returns the IP in the NS response.
+
+\textbf{Security issues:}
+\begin{enumerate}
+	\item \textbf{DDoS Attack}: flooding DNS servers so they cannot answer other requests.
+	\item \textbf{MITM (Man-in-the-Middle) Attack}: when a client queries a server, a fake response can arrive before the real one, potentially mapping a requested name to a desired IP.
+	\item \textbf{Cache poisoning}: if the server is not well-protected, it continues serving an injected response until TTL expires; thus, we must ensure the reply is authentic.
+	\item \textbf{Kaminsky attack}: attacker sends many requests for random subdomains of a target domain (e.g., \texttt{random1.target.com}, \texttt{random2.target.com}, etc.) to a resolver; when the resolver queries the authoritative server, the attacker floods it with fake replies, hoping one matches the query ID and port, poisoning the cache.
+\end{enumerate}
+\begin{itemize}
+	\item \textbf{DNSSEC}: adds signatures so you can verify who answered and add more security; adds extra information and expands UDP packet size.
+\end{itemize}
+
+\subsection{DHCP (Dynamic Host Configuration Protocol)}
+\begin{itemize}
+	\item Allows host to obtain IP dynamically (no manual config).
+	\item Each time host connects, it can get a different IP; server can \textbf{lease} addresses and reuse later.
+	\item Used by devices joining a network.
+	\item \textbf{Message flow (DORA):}
+	\begin{itemize}
+		\item \textbf{DHCP Discover:} src IP 0.0.0.0, dst 255.255.255.255 (broadcast, server unknown).
+		\item \textbf{DHCP Offer:} server replies, dst 255.255.255.255 (broadcast); includes \textbf{yiaddr} (your IP).
+		\item \textbf{DHCP Request:} client broadcasts 0.0.0.0 $\to$ 255.255.255.255 to accept one offer; includes chosen \textbf{yiaddr} so other servers withdraw.
+		\item \textbf{DHCP ACK:} server confirms lease; may broadcast so others know address in use.
+	\end{itemize}
+	\item \textbf{DHCP relaying:} if DHCP server not on local subnet, relay forwards messages to server on another network.
+\end{itemize}
