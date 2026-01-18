@@ -42,28 +42,49 @@
 
 \subsection{CSMA (Carrier Sense Multiple Access)}
 \begin{itemize}
-    \item Listen before tx; if channel idle, transmit entire frame; else wait.
-    \item \textbf{Propagation delay} $\tau$: time for signal to propagate between 2 farthest nodes.
-    \item \textbf{CSMA/CD (Collision Detection):} abort tx on collision detection; reduces wasted time.
-    \item \textbf{CSMA/CD efficiency:} $\eta=\frac{1}{1+5\frac{d_{\text{prop}}}{d_{\text{trans}}}}$.
+    \item \textbf{Basic Principle:} Listen (carrier sense) before transmitting.
+    \item \textbf{Persistence Strategies:}
+    \begin{itemize}
+        \item \textbf{1-persistent:} If idle, transmit immediately. If busy, wait until idle and transmit immediately (high collision probability).
+        \item \textbf{Non-persistent:} If idle, transmit. If busy, wait a random time (backoff) and check again.
+        \item \textbf{p-persistent:} If idle, transmit with probability $p$, else wait for next slot (compromise).
+    \end{itemize}
+    \item \textbf{Propagation delay} $\tau$ ($T_{\text{prop}}$): Time for signal to travel between the two farthest nodes.
 \end{itemize}
 
-\subsubsection{CSMA/CD (Collision Detection)}
+\subsubsection{CSMA/CD (Collision Detection) - Wired (Ethernet)}
 \begin{itemize}
-	\item Detect collisions while transmitting; send jam; then backoff and retry.
-	\item \textbf{Binary exponential backoff:} after $m$-th collision pick $k\in\{0,\ldots,2^m-1\}$, wait $k$ slots.
+    \item \textbf{Mechanism:} Listen while transmitting. If collision detected (voltage spike), abort transmission, send \textbf{jam signal}, then backoff.
+    \item \textbf{Condition for Detection:} Transmission time must be long enough to detect a collision from the farthest node and receive the collision signal back.
+    \[ T_{\text{trans}} \ge 2 \cdot T_{\text{prop}} \]
+    (This determines the minimum packet size).
+	\item \textbf{Example (minimum frame size):} distance $=8\,\mathrm{km}$, propagation speed $=4\times 10^7\,\mathrm{m/s}$, rate $=5\,\mathrm{Mbps}$. Then
+	\[ T_{\text{prop}}=\frac{8\times 10^3}{4\times 10^7}=2\times 10^{-4}\,\mathrm{s}=200\,\mu s \Rightarrow 2T_{\text{prop}}=400\,\mu s \]
+	\[ T_{\text{trans}}=\frac{S}{5\times 10^6} \Rightarrow S=(5\times 10^6)(4\times 10^{-4})=2000\,\text{bytes}. \]
+    \item \textbf{Binary Exponential Backoff:}
+    \begin{itemize}
+        \item After $m$-th collision, choose $k$ uniformly from $\{0, \ldots, 2^m-1\}$.
+        \item Wait $k \cdot \text{slot time}$ (where slot time $\approx 512$ bit times in Ethernet).
+    \end{itemize}
+    \item \textbf{Efficiency ($\eta$):} As $N \to \infty$:
+    \[ \eta = \frac{1}{1 + 2 \cdot \frac{T_{\text{prop}}}{T_{\text{trans}}} \cdot (e-1)} \]
 \end{itemize}
-\subsubsection{CSMA/CA (Collision Avoidance)}
+
+\subsubsection{CSMA/CA (Collision Avoidance) - Wireless (WiFi/802.11)}
 \begin{itemize}
-	\item Used in Wi-Fi: cannot detect collisions reliably, so avoid them.
-	\item If channel idle, wait DIFS then transmit; if busy, pick random backoff slots.
-	\item Receiver replies with ACK after SIFS; missing ACK implies collision.
-\end{itemize}
-\subsubsection{CSMA persistence}
-\begin{itemize}
-	\item \textbf{1-persistent:} transmit immediately when channel becomes idle (high collision under load).
-	\item \textbf{0-persistent:} wait random backoff after busy (lower collision, higher delay).
-	\item \textbf{$p$-persistent:} when idle, transmit with prob. $p$ each slot (tradeoff).
+    \item \textbf{Reasoning:} Cannot detect collisions reliably (weak received signal vs strong transmitted signal), so aim to avoid them.
+    \item \textbf{Protocol:}
+    \begin{itemize}
+        \item If channel idle for \textbf{DIFS}, transmit entire frame.
+        \item If busy, choose random backoff. \textbf{Timer counts down only when channel is idle} (freezes when busy).
+        \item Receiver sends \textbf{ACK} after \textbf{SIFS} if frame received successfully (no ACK = collision).
+    \end{itemize}
+    \item \textbf{Virtual Carrier Sensing (RTS/CTS):} Prevents "Hidden Terminal" problem.
+    \begin{itemize}
+        \item Sender transmits \textbf{RTS} (Request to Send).
+        \item Receiver replies \textbf{CTS} (Clear to Send).
+        \item Neighbors hear RTS/CTS and defer transmission (reserve the channel).
+    \end{itemize}
 \end{itemize}
 
 \subsection{Single (Logical) Link in practice}
@@ -103,12 +124,24 @@
 \subsection{Errors Detection}
 \begin{itemize}
 	\item Goal: detect (and sometimes correct) bit errors introduced by noise on the link.
-	\item \textbf{Repetition code (3-repetition):} send each bit 3 times; majority vote corrects 1 error, detects up to 2.
+	\item \textbf{Repetition code (3-repetition):} send each bit 3 times; bit is chosen by majority vote.
 	\item \textbf{1D parity:} add one parity bit so total 1s is even/odd; detects any odd number of bit errors, cannot locate/correct.
 	\item \textbf{2D parity:} arrange bits in a matrix with row+column parity; detects many multi-bit errors and can correct a single-bit error (intersection).
 	\item \textbf{CRC:} \todo \textbf{Consider removing this if not in Exams} treat bits as polynomial over $GF(2)$; append $r$-bit remainder so frame is divisible by generator $G(x)$.
 	\item CRC detects all single-bit errors, all burst errors of length $\le r$, and most longer bursts (prob. of miss $\approx 2^{-r}$).
 \end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l|c|c|c}
+\textbf{Code} & \textbf{Overhead} & \textbf{Ability to correct} & \textbf{Ability to detect} \\
+\hline
+Repetition (3 times) & $2$ & $1$ & $2$ \\
+1D Parity & $\frac{1}{N}$ & $0$ & $1$ \\
+2D parity & $\frac{2N+1}{N^2}$ & $1$ & $3$ \\
+\end{tabular}
+\end{center}
 
 \section{"Layer 2.5" - ARP}
 ARP is generally considered to be part of Layer 2 (Data Link Layer), but it works directly to support Layer 3 (Network Layer).
