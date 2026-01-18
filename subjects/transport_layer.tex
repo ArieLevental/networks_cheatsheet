@@ -1,1 +1,105 @@
 \section{Transport Layer (TCP \& UDP)}
+
+\subsection{TCP (Transmission Control Protocol)}
+\begin{itemize}
+	\item Reliable, in-order byte stream; receiver ACKs received data. Congestion control limits the sending rate.
+	\item vs. UDP: UDP adds port+IP multiplexing with no reliability guarantees.
+	\item In each ACK, the acknowledgment number is the next expected byte (largest in-order byte + 1).
+	\item \textbf{MTU} (max transfer unit), \textbf{MSS} (max segment size); typically MSS $<$ MTU.
+\end{itemize}
+
+\subsubsection{Connection setup (three-way handshake)}
+\begin{enumerate}
+	\item Client sends \textbf{SYN} with initial sequence number $M$.
+	\item Server replies \textbf{SYN+ACK} with seq $N$ and ACK $M{+}1$.
+	\item Client sends \textbf{ACK} with ACK $N{+}1$.
+\end{enumerate}
+
+\subsubsection{Connection teardown}
+\begin{enumerate}
+	\item Client sends \textbf{FIN}.
+	\item Server replies \textbf{ACK}.
+	\item Server sends \textbf{FIN}.
+	\item Client replies \textbf{ACK}, waits \textbf{timeout}, then closes.
+\end{enumerate}
+
+\subsubsection{Reliable data transfer (sender)}
+\begin{itemize}
+	\item Maintain sequence number and buffer; segment and send data.
+	\item Send while window allows: $lastByteSent - lastByteAcked \le RW$ (receiver window).
+	\item Start timer if not running; on timeout, retransmit the oldest unACKed segment.
+\end{itemize}
+
+\subsubsection{Reliable data transfer (receiver)}
+\begin{itemize}
+	\item Deliver in-order data and send cumulative ACK.
+	\item If out-of-order segment arrives, send ACK for last in-order byte (duplicate ACK).
+\end{itemize}
+
+\subsubsection{Retransmissions}
+\begin{itemize}
+	\item Retransmit on either \textbf{timeout} or \textbf{duplicate ACKs}.
+	\item \textbf{Fast retransmit:} many duplicate ACKs imply loss before timeout.
+\end{itemize}
+
+\subsubsection{RTT estimation}
+\begin{itemize}
+	\item $SampleRTT$: time from sending a segment until its first ACK returns.
+	\item $EstimatedRTT_i = (1-\alpha)EstimatedRTT_{i-1} + \alpha\,SampleRTT$, with $\alpha=0.125$.
+	\item $DevRTT_i = (1-\beta)DevRTT_{i-1} + \beta\,|SampleRTT-EstimatedRTT_{i-1}|$.
+	\item $TimeoutInterval = EstimatedRTT + 4\,DevRTT$.
+\end{itemize}
+
+\subsubsection{Flow Control vs. Congestion Control}
+\begin{itemize}
+	\item \textbf{Flow control}: prevents sender from overwhelming the receiver (receiver buffer limits).
+	\item \textbf{Congestion control}: prevents sender from overloading the network.
+	\item Sender can send while: $lastByteSent - lastByteAcked \le \min(RW, cwnd)$.
+	\item When receiver buffer is the limiter, flow control dominates; when network is the limiter, congestion control dominates.
+\end{itemize}
+
+\subsubsection{Congestion Control phases}
+\begin{enumerate}
+	\item \textbf{Slow Start (SS):} exponential growth; for each ACK, $cwnd = cwnd + 1$ (per ACK), doubling each RTT.
+	\item \textbf{Congestion Avoidance (CA):} linear growth; for each ACK, $cwnd = cwnd + 1/cwnd$ (\textasciitilde$+1$ per RTT).
+\end{enumerate}
+\begin{itemize}
+	\item Threshold \textbf{ssthresh} decides SS vs CA: use SS while $cwnd < ssthresh$, CA when $cwnd \ge ssthresh$.
+\end{itemize}
+
+\subsubsection{TCP Tahoe}
+\begin{itemize}
+	\item Start with $cwnd=1$ (SS).
+	\item On loss (timeout or 3 duplicate ACKs): set $ssthresh = cwnd/2$, set $cwnd=1$, restart SS.
+\end{itemize}
+
+\subsubsection{TCP Reno}
+\begin{itemize}
+	\item Improves Tahoe for 3 duplicate ACKs (fast retransmit/fast recovery).
+	\item On 3 duplicate ACKs: set $ssthresh = cwnd/2$ and enter \textbf{fast recovery} (do not go back to $cwnd=1$).
+	\item During fast recovery: for each duplicate ACK, increase $cwnd$ by 1; on new ACK, set $cwnd = ssthresh$ and enter CA.
+	\item On timeout: set $ssthresh = cwnd/2$, set $cwnd=1$, restart SS.
+\end{itemize}
+
+\subsubsection{TCP Vegas}
+\begin{itemize}
+	\item Delay-based congestion control: compares expected throughput (from $cwnd/baseRTT$) to actual throughput (from $cwnd/RTT$).
+	\item Adjusts $cwnd$ to keep the difference within a target range (\textbf{$\alpha$}, \textbf{$\beta$}), aiming to prevent queue buildup before loss.
+	\item Less widely used because it competes poorly with loss-based flows (Reno/CUBIC), is sensitive to RTT measurement noise, and offers limited incremental deployability in the public Internet.
+\end{itemize}
+
+\subsubsection{Utilization intuition}
+\begin{itemize}
+	\item With window size $W$ and RTT $RTT$, throughput is about $W/RTT$.
+	\item If window halves after loss, average throughput over a cycle is roughly $0.75\,W/RTT$.
+\end{itemize}
+
+\subsection{UDP (User Datagram Protocol)}
+\begin{itemize}
+	\item Connectionless; no setup, no reliability, no ordering.
+	\item Uses IP+port for multiplexing/demultiplexing (socket identified by destination port).
+	\item Very small header; no congestion control, so can send as fast as the application wants.
+	\item Useful when timeliness matters more than reliability (e.g., streaming, VoIP), or when simplicity/overhead is key.
+	\item Also used for request/response protocols like DNS and for DHCP (no TCP connection possible before address assignment).
+	\item Reliability (if needed) is handled at the application layer.
+\end{itemize}
