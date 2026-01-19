@@ -6,6 +6,8 @@
 	\item Subnet vs host split via CIDR: a.b.c.d/$x$ where $x$ = prefix length (subnet mask).
 	\item Example: 192.168.1.178/24 $\Rightarrow$ subnet 192.168.1, host 178.
 	\item Hierarchical addressing enables routing scalability; ISPs advertise prefixes.
+	\item \textbf{Router:} network-layer device that connects networks and forwards IP packets based on destination prefixes (routing table), decoupling L2 domains.
+	\item \textbf{Router + ARP/L2:} for each hop, the router uses ARP on the outgoing interface to learn the next-hop MAC, rewrites the L2 header, and forwards the same IP packet (new L2 header per link).
 	\item Forwarding uses \textbf{longest prefix match}.
 	\item \textbf{Address discovery protocols:}
 \end{itemize}
@@ -37,5 +39,60 @@
 		\item Adds per-packet processing and state; can increase latency and complexity.
 		\item Scalability: still limited by public IPs for NAT gateways and port space.
 	\end{itemize}
+\end{itemize}
+
+\subsection{Routing}
+\begin{itemize}
+	\item Goal: choose a path for a packet through the network to reach the destination.
+	\item \textbf{Shortest path routing:} pick the minimum-cost path (weights represent costs).
+	\item \textbf{DV (Distance Vector):} each node knows only its neighbors and their distances (not full topology). Each node keeps a vector of distances to all destinations (anycast).
+\end{itemize}
+
+\subsubsection{Distance Vector (Bellman-Ford)}
+For node $s$:
+\[ d_s(v)=\begin{cases}
+c(s,v), & v\in \Gamma(s)\\
+0, & v=s\\
+\infty, & \text{else}
+\end{cases} \]
+Iterate:
+\begin{itemize}
+	\item Update with neighbors: $d_s(v)=\min_{x\in \Gamma(s)}\{c(s,x)+d_x(v)\}$.
+	\item If any entry changes, propagate updated vector.
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Count-to-infinity:} when a path fails, nodes can keep increasing distances by looping updates.
+	\item \textbf{Poisoned reverse:} if route from $X$ to $Z$ goes via $Y$, then $Y$ advertises $Z$ to $X$ with $\infty$ to prevent two-node loops (still fails for loops $\ge 3$).
+	\item \textbf{RIP (Routing Information Protocol):}
+	\begin{itemize}
+		\item Distance-vector protocol using hop count as metric (max 15 hops).
+		\item Sends full distance vector every 30 seconds.
+		\item If no update for 180 seconds, route is considered unreachable (infinite).
+	\end{itemize}
+	\item \textbf{ARPANET:} early distance-vector-like algorithm; suffered from slow convergence and required careful update control to avoid instability.
+\end{itemize}
+
+\subsubsection{Link State (Dijkstra)}
+\begin{itemize}
+	\item Global knowledge: each node learns full topology and link costs; changes are flooded (multicast/LSA).
+	\item Dijkstra from source $s$:
+\end{itemize}
+Initialize:
+\[ d_s(v)=\begin{cases}
+c(s,v), & v\in \Gamma(s)\\
+0, & v=s\\
+\infty, & \text{else}
+\end{cases} \quad N' = \{s\} \]
+Repeat until $N'=N$:
+\begin{enumerate}
+	\item Choose $w\notin N'$ with minimal $d_s(w)$.
+	\item Add $w$ to $N'$.
+	\item For each $v\in \Gamma(w)\setminus N'$, update $d_s(v)=\min\{d_s(v), d_s(w)+c(w,v)\}$.
+\end{enumerate}
+
+\begin{itemize}
+	\item Once the table is built, forward using it (multicast routing supported).
+	\item \textbf{OSPF:} link-state protocol; supports multiple metrics/weights, multiple paths, and hierarchical areas; LSAs are flooded and recomputed on change (periodic refresh).
 \end{itemize}
 
