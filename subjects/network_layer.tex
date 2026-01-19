@@ -41,7 +41,34 @@
 	\end{itemize}
 \end{itemize}
 
-\subsection{Routing}
+
+
+\subsection{Topology}
+\begin{itemize}
+	\item Network graph structure (how nodes/links are connected).
+	\item \textbf{Diameter:} max shortest-path distance between any two nodes (in hops/links).
+	\item \textbf{Nodal degree:} number of links incident to a node.
+	\item \textbf{Bisection bandwidth:} min total bandwidth across any split of nodes into two equal halves.
+	\item \textbf{Edge expansion (intuition):} connectivity of small sets; higher expansion \(\Rightarrow\) more robust.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l|c|c|c}
+\textbf{Topology ($N$ nodes)} & \textbf{Diameter} & \textbf{Degree} & \textbf{Bisection} \\
+\hline
+Line & $N-1$ & 2 (ends 1) & 1 \\
+Ring & $N/2$ & 2 & 2 \\
+Balanced Tree & $2 \log_2 N$ & 3 (root 2, leaves 1) & 1 \\
+Hypercube ($N=2^k$) & $\log_2 N$ & $\log_2 N$ & $N/2$ \\
+Complete Bipartite & 2 & $N/2$ & $N^2/8$ \\
+\end{tabular}
+\end{center}
+
+
+
+\subsection{Intradomain Routing}
 \begin{itemize}
 	\item Goal: choose a path for a packet through the network to reach the destination.
 	\item \textbf{Shortest path routing:} pick the minimum-cost path (weights represent costs).
@@ -114,4 +141,61 @@ Repeat until $N'=N$:
 		\item Each router builds full topology and runs Dijkstra locally.
 	\end{itemize}
 \end{itemize}
+
+\subsubsection{Comparison of LS vs DV}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{0.20\columnwidth}|p{0.34\columnwidth}|p{0.34\columnwidth}}
+\textbf{Aspect} & \textbf{LS (Link State)} & \textbf{DV (Distance Vector)} \\
+\hline
+Message complexity & $O(nE)$ (flood LSAs) & Neighbor exchanges only \\
+Speed of convergence & Dijkstra $O(n^2)$; may oscillate & Varies; loops, count-to-infinity \\
+Robustness & Wrong \emph{link} cost affects own table & Wrong \emph{path} cost propagates; blackholes \\
+\end{tabular}
+\end{center}
+
+\subsection{Traffic Engineering}
+\begin{itemize}
+	\item Goal: optimize network performance by tuning routing (often via link weights).
+	\item Workflow: measure traffic/topology, build network-wide model, then optimize weights.
+	\item Common objectives: maximize throughput, minimize congestion (max-link load), fairness.
+	\begin{itemize}
+		\item Minimize Congestion - minimize the maximum link utilization: \\ $\min \max_{e\in E} \frac{\text{load}(e)}{\text{capacity}(e)}$.
+		\item Maximize Throughput - maximize the total accepted traffic: \\ $\max \sum_{(s,t)} \text{flow}(s,t)$.
+		\item Maximum Multicommodity Flow (Max-MCF): maximize total flow between all source-destination pairs subject to link capacities.
+		\item \textbf{Commodities} are tuples $(s,t,d)$ that represent demand $d$ from source $s$ to target $t$, e.g., $(A,B,12)$.
+		\item \textbf{Max-MCF$_{\text{OSPF/ECMP}}$:} maximize total flow using OSPF+ECMP (flows can split only on shortest paths).
+		\item \textbf{Max-MCF$_{\text{OPT}}$:} maximize total flow with arbitrary splitting (no shortest-path restriction).
+		\item \textbf{MinCong-MCF$_{\text{OSPF/ECMP}}$:} minimize max congestion using OSPF+ECMP.
+		\item \textbf{MinCong-MCF$_{\text{OPT}}$:} minimize max congestion with arbitrary splitting.
+		\item[] \textit{Note: In MinCong-MCF, all commodities must be sent (even if capacities are exceeded); in Max-MCF, flows are bounded by capacities.}
+	\end{itemize}
+	\item \textbf{Complexity of link-weight optimization:}
+	\begin{itemize}
+		\item NP-hard, even for simple objectives.
+		\item \textbf{Theorem:} Approximating the min-congestion multi-commodity flow within any constant factor is NP-hard, even for a single source-target pair.
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Modelling networks as linear programs}
+\todo ?
+\\
+
+\subsubsection{ECMP}
+
+
+\begin{itemize}
+	\item Equal-Cost Multi-Path: split traffic across multiple shortest paths (same total cost).
+	\item Each router keeps a set of equal-cost next hops and load-balances among them.
+	\item \textbf{Hashing}:
+	\begin{itemize}
+		\item choose next hop by hashing the flow 5-tuple (src/dst IP, src/dst port, protocol).
+		\item This way we achieve deterministic per-flow mapping: all packets of a flow take the same path (avoids reordering).
+		\item Efficient to compute; provides near-even split across equal-cost paths in aggregate.
+		\item Caveat: if only a few “heavy” flows exist, they may map to same path \(\Rightarrow\) imbalance.
+	\end{itemize}
+	\item Good for load sharing, but optimality is not guaranteed (NP-hard).
+\end{itemize}
+
 
