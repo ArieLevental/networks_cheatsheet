@@ -2,25 +2,34 @@
 
 \subsection{TCP (Transmission Control Protocol)}
 \begin{itemize}
-	\item Reliable, in-order byte stream; receiver ACKs received data. Congestion control limits the sending rate.
-	\item vs. UDP: UDP adds port+IP multiplexing with no reliability guarantees.
-	\item In each ACK, the acknowledgment number is the next expected byte (largest in-order byte + 1).
-	\item \textbf{MTU} (max transfer unit), \textbf{MSS} (max segment size); typically MSS $<$ MTU.
+    \item Reliable, in-order byte stream; receiver ACKs received data.
+    \item \textbf{vs. UDP:} UDP provides port+IP multiplexing (best effort) with no reliability, ordering, or flow control.
+    \item \textbf{Sequence \#:} The byte number of the \textit{first} byte of data in the segment.
+    \item \textbf{ACK \#:} The \textit{next expected} byte (Cumulative ACK).
+    \item \textbf{MTU vs. MSS:}
+    \begin{itemize}
+        \item \textbf{MTU:} Max Transfer Unit (max packet size on link, e.g., 1500B).
+        \item \textbf{MSS:} Max Segment Size (max payload). $MSS = MTU - (IP_{Header} + TCP_{Header})$. \\ Typically $MSS = MTU - 40$ (so $MSS < MTU$).
+    \end{itemize}
 \end{itemize}
 
-\subsubsection{Connection setup (three-way handshake)}
+\subsubsection{Connection Setup (3-Way Handshake)}
 \begin{enumerate}
-	\item Client sends \textbf{SYN} with initial sequence number $M$.
-	\item Server replies \textbf{SYN+ACK} with seq $N$ and ACK $M{+}1$.
-	\item Client sends \textbf{ACK} with ACK $N{+}1$.
+	\item Client $\to$ Server: \textbf{SYN}, Seq $= x$.\\
+	\quad Announces client ISN (Initial Sequence Number, $x$) and requests connection.
+	\item Server $\to$ Client: \textbf{SYN + ACK}, Seq $= y$, ACK $= x+1$.\\
+	\quad Accepts, advertises server ISN, and ACKs client ISN.
+	\item Client $\to$ Server: \textbf{ACK}, Seq $= x+1$, ACK $= y+1$.\\
+	\quad Final ACK; both sides synchronized.
+    \item (Connection Established)
 \end{enumerate}
 
-\subsubsection{Connection teardown}
+\subsubsection{Connection Teardown}
 \begin{enumerate}
-	\item Client sends \textbf{FIN}.
-	\item Server replies \textbf{ACK}.
-	\item Server sends \textbf{FIN}.
-	\item Client replies \textbf{ACK}, waits \textbf{timeout}, then closes.
+    \item Client sends \textbf{FIN}.
+    \item Server replies \textbf{ACK}. (Client enters FIN\_WAIT\_2).
+    \item Server sends \textbf{FIN}.
+    \item Client replies \textbf{ACK}, waits \textbf{TIME\_WAIT} (usually 2*MSL), then closes.
 \end{enumerate}
 
 \subsubsection{Reliable data transfer (sender)}
@@ -44,10 +53,16 @@
 
 \subsubsection{RTT estimation}
 \begin{itemize}
-	\item $SampleRTT$: time from sending a segment until its first ACK returns.
-	\item $EstimatedRTT_i = (1-\alpha)EstimatedRTT_{i-1} + \alpha\,SampleRTT$, with $\alpha=0.125$.
-	\item $DevRTT_i = (1-\beta)DevRTT_{i-1} + \beta\,|SampleRTT-EstimatedRTT_{i-1}|$.
-	\item $TimeoutInterval = EstimatedRTT + 4\,DevRTT$.
+	\item Goal: set timeout slightly above RTT to avoid premature retransmits but still react fast to loss.
+	\item \textbf{SampleRTT:} time from sending a segment until its first ACK returns (ignore retransmitted samples).
+	\item Now we can compute a smoothed RTT which is exponentially weighted moving average of recent samples:
+	\[ \textbf{EstimatedRTT} \leftarrow (1-\alpha)\,\text{EstimatedRTT} + \alpha\,\text{SampleRTT}\]
+	typical value for $\alpha$ is $1/8$ (higher $\alpha$ reacts faster; lower is smoother).
+	\item RTT variation (we add some safety margin):
+	\[ \textbf{DevRTT} \leftarrow (1-\beta)\,\text{DevRTT} + \beta\,|\text{SampleRTT} - \text{EstimatedRTT}|\]
+	typical value for $\beta$ is $1/4$ (higher $\beta$ reacts faster; lower is smoother).
+	\item We may then set the timeout interval as:
+	\[ 	\textbf{TimeoutInterval} = \text{EstimatedRTT} + 4\cdot \text{DevRTT} \]
 \end{itemize}
 
 \subsubsection{Flow Control vs. Congestion Control}
@@ -58,27 +73,41 @@
 	\item When receiver buffer is the limiter, flow control dominates; when network is the limiter, congestion control dominates.
 \end{itemize}
 
-\subsubsection{Congestion Control phases}
+\subsubsection{Congestion Control Phases (AIMD)}
+\textbf{AIMD (Additive Increase, Multiplicative Decrease):} Ensures stability and fairness.
 \begin{enumerate}
-	\item \textbf{Slow Start (SS):} exponential growth; for each ACK, $cwnd = cwnd + 1$ (per ACK), doubling each RTT.
-	\item \textbf{Congestion Avoidance (CA):} linear growth; for each ACK, $cwnd = cwnd + 1/cwnd$ (\textasciitilde$+1$ per RTT).
+    \item \textbf{Slow Start (SS):} Exponential growth; $cwnd = cwnd + 1$ per ACK (doubles every RTT).
+    \item \textbf{Congestion Avoidance (CA):} Linear growth; $cwnd = cwnd + 1/cwnd$ per ACK ($\approx +1$ MSS per RTT).
 \end{enumerate}
 \begin{itemize}
-	\item Threshold \textbf{ssthresh} decides SS vs CA: use SS while $cwnd < ssthresh$, CA when $cwnd \ge ssthresh$.
+    \item \textbf{Transition:} Threshold \textbf{ssthresh} decides SS vs CA: \\ If $cwnd < ssthresh \to$ SS. If $cwnd \ge ssthresh \to$ CA.
 \end{itemize}
 
 \subsubsection{TCP Tahoe}
 \begin{itemize}
-	\item Start with $cwnd=1$ (SS).
-	\item On loss (timeout or 3 duplicate ACKs): set $ssthresh = cwnd/2$, set $cwnd=1$, restart SS.
+    \item On \textbf{any} loss (Timeout OR 3-Dup ACKs):
+    \item Set $ssthresh = \lfloor cwnd/2 \rfloor$.
+    \item Set $cwnd = 1$.
+    \item Enter \textbf{Slow Start}.
 \end{itemize}
 
-\subsubsection{TCP Reno}
+\subsubsection{TCP Reno (Standard)}
 \begin{itemize}
 	\item Improves Tahoe for 3 duplicate ACKs (fast retransmit/fast recovery).
-	\item On 3 duplicate ACKs: set $ssthresh = cwnd/2$ and enter \textbf{fast recovery} (do not go back to $cwnd=1$).
-	\item During fast recovery: for each duplicate ACK, increase $cwnd$ by 1; on new ACK, set $cwnd = ssthresh$ and enter CA.
-	\item On timeout: set $ssthresh = cwnd/2$, set $cwnd=1$, restart SS.
+    \item On \textbf{Timeout:} Same as Tahoe ($cwnd=1$, restart SS etc).
+    \item On \textbf{3 Duplicate ACKs (Fast Retransmit/Recovery):}
+    \begin{enumerate}
+        \item Retransmit missing segment immediately.
+        \item Set $ssthresh = \lfloor cwnd/2 \rfloor$.
+        \item Set $cwnd = ssthresh + 3$ (accounts for 3 packets buffering).
+        \item Enter \textbf{Congestion Avoidance} (skips Slow Start).
+    \end{enumerate}
+	\item \textbf{Utilization intuition}
+	\begin{itemize}
+		\item Reno provides sawtooth behavior in $cwnd$ over time.
+		\item With window size $W$ and RTT $RTT$, throughput is about $W/RTT$.
+		\item If window halves after loss, average throughput over a cycle is roughly $0.75\,W/RTT$.
+	\end{itemize}
 \end{itemize}
 
 \subsubsection{TCP Vegas}
@@ -86,12 +115,6 @@
 	\item Delay-based congestion control: compares expected throughput (from $cwnd/baseRTT$) to actual throughput (from $cwnd/RTT$).
 	\item Adjusts $cwnd$ to keep the difference within a target range (\textbf{$\alpha$}, \textbf{$\beta$}), aiming to prevent queue buildup before loss.
 	\item Less widely used because it competes poorly with loss-based flows (Reno/CUBIC), is sensitive to RTT measurement noise, and offers limited incremental deployability in the public Internet.
-\end{itemize}
-
-\subsubsection{Utilization intuition}
-\begin{itemize}
-	\item With window size $W$ and RTT $RTT$, throughput is about $W/RTT$.
-	\item If window halves after loss, average throughput over a cycle is roughly $0.75\,W/RTT$.
 \end{itemize}
 
 \subsection{UDP (User Datagram Protocol)}

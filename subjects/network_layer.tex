@@ -64,13 +64,26 @@ Iterate:
 \begin{itemize}
 	\item \textbf{Count-to-infinity:} when a path fails, nodes can keep increasing distances by looping updates.
 	\item \textbf{Poisoned reverse:} if route from $X$ to $Z$ goes via $Y$, then $Y$ advertises $Z$ to $X$ with $\infty$ to prevent two-node loops (still fails for loops $\ge 3$).
+	\begin{itemize}
+	\item Example (3-node loop): equal link costs; if link $A{-}D$ fails (weight $\infty$), poisoned reverse still fails.
+	\begin{tikzpicture}[scale=0.8, every node/.style={circle, draw, inner sep=0.6pt, font=\tiny}, >=latex]
+		\node (D) at (0,0) {D};
+		\node (A) at (0.9,0) {A};
+		\node (B) at (1.7,0.45) {B};
+		\node (C) at (1.7,-0.45) {C};
+		\draw (D) -- (A);
+		\draw (A) -- (B);
+		\draw (A) -- (C);
+		\draw (B) -- (C);
+	\end{tikzpicture}
+	\end{itemize}
 	\item \textbf{RIP (Routing Information Protocol):}
 	\begin{itemize}
 		\item Distance-vector protocol using hop count as metric (max 15 hops).
 		\item Sends full distance vector every 30 seconds.
 		\item If no update for 180 seconds, route is considered unreachable (infinite).
 	\end{itemize}
-	\item \textbf{ARPANET:} early distance-vector-like algorithm; suffered from slow convergence and required careful update control to avoid instability.
+	\item \textbf{ARPANET:} early distance-vector-like algorithm; suffered from slow convergence and required careful update control to avoid instability; not used today (historical).
 \end{itemize}
 
 \subsubsection{Link State (Dijkstra)}
@@ -93,6 +106,12 @@ Repeat until $N'=N$:
 
 \begin{itemize}
 	\item Once the table is built, forward using it (multicast routing supported).
-	\item \textbf{OSPF:} link-state protocol; supports multiple metrics/weights, multiple paths, and hierarchical areas; LSAs are flooded and recomputed on change (periodic refresh).
+	\item \textbf{OSPF (Open Shortest Path First):}
+	\begin{itemize}
+		\item Link-state protocol; supports multiple metrics/weights, multiple paths, hierarchical areas.
+		\item Link costs/weights are configured by the network admin.
+		\item LSAs are flooded (multicast) on change; periodic refresh as well.
+		\item Each router builds full topology and runs Dijkstra locally.
+	\end{itemize}
 \end{itemize}
 

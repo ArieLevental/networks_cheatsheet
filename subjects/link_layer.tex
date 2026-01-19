@@ -116,9 +116,14 @@
 		\item \textbf{Switch table:} (MAC, port, TTL). Learn from source MAC+ingress port on each frame.
     \end{itemize}
     \item \textbf{Loops:} cause broadcast storms, multiple frame copies, MAC table instability.
-	\item \textbf{Spanning Tree Protocol (STP):} disable links to eliminate loops; elect root, compute shortest-path tree.
-	\item \textbf{HELLO/BPDU fields:} SID (switch ID), RID (root ID), DTR (distance to root).
-	\item Root selection: prefer lower RID; then lower DTR; then lower SID (tie-break).
+	\item \textbf{Spanning Tree Protocol (STP):} prevent L2 loops by blocking redundant links; converges to a loop-free spanning tree.
+	\begin{itemize}
+		\item \textbf{BPDUs (Hello messages):} (RID, RootCost, SID, PortID) advertised periodically; switches keep the \emph{best} tuple.
+		\item \textbf{Root election:} lowest RID wins (all switches start assuming they are root).
+		\item \textbf{Root port (per non-root switch):} port with lowest RootCost to root; ties: lower upstream SID, then lower PortID.
+		\item \textbf{Designated port (per LAN segment):} switch with lowest RootCost on that segment forwards; ties: lower SID, then lower PortID.
+		\item \textbf{Forwarding:} root ports + designated ports forward; all others block (no data forwarding, still send BPDUs).
+	\end{itemize}
 \end{itemize}
 
 \subsection{Errors Detection}
