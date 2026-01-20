@@ -114,7 +114,7 @@
 \begin{itemize}
 	\item Delay-based congestion control: compares expected throughput (from $cwnd/baseRTT$) to actual throughput (from $cwnd/RTT$).
 	\item Adjusts $cwnd$ to keep the difference within a target range (\textbf{$\alpha$}, \textbf{$\beta$}), aiming to prevent queue buildup before loss.
-	\item Less widely used because it competes poorly with loss-based flows (Reno/CUBIC), is sensitive to RTT measurement noise, and offers limited incremental deployability in the public Internet.
+	\item Less widely used because it competes poorly with loss-based flows (Reno), is sensitive to RTT measurement noise, and offers limited incremental deployability in the public Internet.
 \end{itemize}
 
 \subsection{UDP (User Datagram Protocol)}
@@ -125,4 +125,60 @@
 	\item Useful when timeliness matters more than reliability (e.g., streaming, VoIP), or when simplicity/overhead is key.
 	\item Also used for request/response protocols like DNS and for DHCP (no TCP connection possible before address assignment).
 	\item Reliability (if needed) is handled at the application layer.
+\end{itemize}
+
+\subsection{Reliable Data Transfer Protocols}
+These protocols are the conceptual building blocks for reliability. While TCP is a specific protocol, it uses the mechanisms defined in these models.
+
+\subsubsection{Stop-and-Wait}
+\begin{itemize}
+	\item \textbf{Mechanism:} Sender sends one packet, waits for ACK; if ACK/packet lost, timeout triggers retransmission.
+    \item \textbf{Efficiency:} Very low in "long fat pipes" (high RTT). 
+    \item \textbf{Utilization:} $U_{sender} = \frac{L/R}{RTT + L/R}$ \\ (where $L$=packet length, $R$=transmission rate).
+	\item \textbf{Timeout lower bound:} $T_{out} \ge 2T_{prop} + T_{ack} + T_{pt}$.
+	\item $T_{prop} = \frac{distance}{propagation\ speed}$, $T_{ack} = \frac{ACK\ size}{rate}$, \\ $T_{pt}$ = processing time.
+	\item \textbf{Goodput (loss prob. $p$ for both data and ACK):} $\text{Goodput} = \frac{T_{packet}}{\frac{1}{(1-p)^2}(T_{packet}+T_{out})} = \frac{T_{packet}(1-p)^2}{T_{packet}+T_{out}}$.
+	\item[] \textit{Note: Here we assume independent losses for data and ACK packets. If ACK losses are negligible, replace $(1-p)^2$ with $(1-p)$ in the Goodput formula, since now it's Geometric with success prob. $(1-p)$. \\ also, if $\overline{T_{out}}$ of successful transmissions is differenet than that of retransmissions, we would need to weight accordingly.}
+	\item[] $\text{Goodput} = \frac{T_{packet}}{\left(\frac{1}{(1-p)^2}-1\right)(T_{packet}+T_{out})+(T_{packet}+\overline{T_{out}})}$
+\end{itemize}
+
+\textbf{Pipelined Protocols (Sliding Window):} \\
+Allows multiple unacknowledged packets to be "in-flight" to increase utilization.
+\subsubsection{Go-Back-N (GBN):}
+\begin{itemize}
+	\item \textbf{Sender:} Can send up to $N$ packets without ACKs. Uses a \textit{single timer} for the oldest unACKed packet.
+	\item \textbf{Receiver:} Uses \textbf{Cumulative ACKs}. If a packet is missing, it discards all subsequent out-of-order packets.
+	\item \textbf{Receiver window:} size 1; accepts only next in-order packet.
+	\item \textbf{On Timeout:} Sender retransmits \textit{all} $N$ transmitted but unACKed packets.
+	\item \textbf{Goodput (loss prob. $p$):} let $a=\frac{T_{out}+T_{packet}}{T_{packet}}$, then $\text{Goodput}_{GBN} = \frac{1-p}{1-p+p a}$.
+\end{itemize}
+\subsubsection{Selective Repeat (SR):}
+\begin{itemize}
+	\item \textbf{Sender:} Maintains a \textit{timer for each} individual packet.
+	\item \textbf{Receiver:} ACKs packets individually. \textbf{Buffers} out-of-order packets for later delivery.
+	\item \textbf{On Timeout:} Sender retransmits \textit{only} the specific lost packet.
+	\item \textbf{Window Size Constraint:} To avoid sequence ambiguity, $WindowSize \le \frac{1}{2} \cdot MaxSeqNum$.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{0.22\columnwidth}|p{0.34\columnwidth}|p{0.34\columnwidth}}
+\textbf{Criteria} & \textbf{Selective Repeat} & \textbf{Go-Back-N} \\
+\hline
+Bandwidth utilization & Retransmits only lost packets & May retransmit already received packets \\
+Window sizes & Sender: $N$, Receiver: $N$ & Sender: $N$, Receiver: $1$ \\
+Sequence numbers & $2N$ & $N+1$ \\
+Out-of-order handling & Buffers and tracks out-of-order packets & No buffering; accepts only in-order \\
+Receiver storage & Stores out-of-order until missing arrives & No need to store (sender may resend) \\
+\end{tabular}
+\end{center}
+
+\subsubsection{Implementation \& Relation to TCP}
+\begin{itemize}
+    \item \textbf{Where they run:} These protocols run in the \textbf{Transport Layer} (Layer 4) within the \textbf{Operating System} of the end-hosts. Routers and switches (the "network core") generally do not implement these.
+    \item \textbf{TCP Implementation:} 
+    \begin{itemize}
+        \item TCP is a hybrid: It uses \textbf{Cumulative ACKs} (like GBN) but typically \textbf{Buffers out-of-order segments} and can use \textbf{SACK} (Selective ACK) to retransmit only missing data (like SR).
+    \end{itemize}
 \end{itemize}
