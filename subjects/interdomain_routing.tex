@@ -39,16 +39,31 @@
     \item \textbf{eBGP:} Between ASes; increments AS\_PATH, may change NEXT\_HOP.
     \item \textbf{iBGP:} Within AS; no AS\_PATH prepend; needs full mesh or route-reflectors.
     \item \textbf{IGP:} Provides internal reachability to BGP NEXT\_HOP.
+    \item \textbf{Best-path inside AS (hot-potato):} \textcolor{gray}{(1)} Highest LOCAL\_PREF, then \textcolor{gray}{(2)} shortest AS\_PATH, then \textcolor{gray}{(3)} closest egress (lowest IGP cost), then \textcolor{gray}{(4)} tie-break.
 \end{itemize}
 
 \subsection{BGP Stability}
 \begin{itemize}
     \item \textbf{Stable state:} Routes converge with no further changes.
-    \item \textbf{Safety theorem (informal):} Under Gao-Rexford, BGP converges to a stable outcome.
+    \item \textbf{Dispute Wheel:} A cycle of nodes $u_0, \dots, u_{k-1}$ where each $u_i$ prefers a path through $u_{i+1}$ over a direct/stable path.
+    \item \textbf{Safety theorem (informal):}
+    \begin{itemize}
+        \item \textbf{General:} BGP is safe (converges) iff the system contains no Dispute Wheel.
+        \item Under Gao-Rexford, BGP converges to a stable outcome (BGP-safe, no Dispute Wheel exists).
+    \end{itemize}
     \item \textbf{Gao-Rexford conditions (commercial routing)}
     \begin{itemize}
-        \item \textbf{Topology:} Customer-provider edges form a DAG; peers are lateral.
-        \item \textbf{Preference:} Customer $>$ peer $>$ provider.
-        \item \textbf{Export:} Export all routes to customers; only customer routes to peers/providers.
+        \item \textbf{Topology:}  No customer-provider cycles in the AS graph.
+        \item \textbf{Preference:} Prefer routes from customers $>$ peers $>$ providers.
+        \item \textbf{Export:} Advertise customer routes to all; peer/provider routes only to customers.
     \end{itemize}
+\end{itemize}
+
+\subsection{BGP Security}
+\begin{itemize}
+    \item \textbf{Trust-based, weak by default:} BGP updates are accepted unless filtered; vulnerable to mistakes and attacks.
+    \item \textbf{Session security (TCP-based):} eavesdropping, spoofing, reset, or tampering with UPDATEs.
+    \item \textbf{Prefix hijacking:} False origin claims or more-specific prefixes attract traffic (can be accidental or malicious).
+    \item \textbf{Detection:} Monitor multiple vantage points, anomaly alerts, route collectors/looking glasses.
+    \item \textbf{Origin authentication:} Using a secure database to validate which AS may announce a prefix (reduces hijacks but not full path validation).
 \end{itemize}

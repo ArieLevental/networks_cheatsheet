@@ -116,7 +116,7 @@
 		\item \textbf{Switch table:} (MAC, port, TTL). Learn from source MAC+ingress port on each frame.
     \end{itemize}
     \item \textbf{Loops:} cause broadcast storms, multiple frame copies, MAC table instability.
-	\item \textbf{Spanning Tree Protocol (STP):} prevent L2 loops by blocking redundant links; converges to a loop-free spanning tree.
+	\item \subsubsection{Spanning Tree Protocol (STP):} prevent L2 loops by blocking redundant links; converges to a loop-free spanning tree.
 	\begin{itemize}
 		\item \textbf{BPDUs (Hello messages):} (RID, RootCost, SID, PortID) advertised periodically; switches keep the \emph{best} tuple.
 		\item \textbf{Root election:} lowest RID wins (all switches start assuming they are root).

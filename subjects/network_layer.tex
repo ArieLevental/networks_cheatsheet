@@ -20,7 +20,7 @@
 \subsection{NAT (Network Address Translation)}
 \begin{itemize}
 	\item Translates internal private IPs to a smaller set of public IPs (often one) using port mapping.
-	\item Internal hosts use private ranges (e.g., 192.168.x.x); NAT exposes a single public IP to the Internet.
+	\item Internal hosts use private ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16); NAT exposes a single public IP to the Internet.
 	\item \textbf{Advantages:}
 	\begin{itemize}
 		\item Conserves public IPv4 addresses; many hosts share one public IP.
@@ -33,6 +33,23 @@
 		\item For outbound packets, NAT rewrites source IP:port and records the mapping.
 		\item For inbound packets, NAT looks up the destination port and rewrites to the internal host; if no mapping, it drops.
 	\end{itemize}
+	\item \textbf{Example setup:} LAN hosts A=192.168.0.1 (TCP ports 1024,2000), B=192.168.0.2 (UDP ports 1000,2000), C=192.168.0.3 (TCP port 1024). Public IP: 132.58.38.2. NAT allocates public ports 5001+.
+	\item \textbf{Example table (public IP 132.58.38.2):}
+	\noindent\hspace*{-\leftmargin}\makebox[\columnwidth][c]{%
+		\renewcommand{\arraystretch}{1.2}
+		\setlength{\tabcolsep}{1pt}
+		\resizebox{\columnwidth}{!}{
+			\begin{tabular}{l|c|c|c|c}
+			\textbf{L4 Protocol} & \textbf{Translated L4 port} & \textbf{Translated IP} & \textbf{Original L4 port} & \textbf{Local IP} \\
+			\hline
+			TCP & 5001 & 132.58.38.2 & 1024 & 192.168.0.1 \\
+			TCP & 5002 & 132.58.38.2 & 2000 & 192.168.0.1 \\
+			UDP & 5003 & 132.58.38.2 & 1000 & 192.168.0.2 \\
+			UDP & 5004 & 132.58.38.2 & 2000 & 192.168.0.2 \\
+			TCP & 5005 & 132.58.38.2 & 1024 & 192.168.0.3 \\
+			\end{tabular}
+		}
+	}
 	\item \textbf{Why it doesn't fully solve IPv4 shortage:}
 	\begin{itemize}
 		\item Breaks end-to-end connectivity; inbound connections need port forwarding/ALGs.

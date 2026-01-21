@@ -11,6 +11,7 @@
         \item \textbf{MTU:} Max Transfer Unit (max packet size on link, e.g., 1500B).
         \item \textbf{MSS:} Max Segment Size (max payload). $MSS = MTU - (IP_{Header} + TCP_{Header})$. \\ Typically $MSS = MTU - 40$ (so $MSS < MTU$).
     \end{itemize}
+	\item \textbf{TCP header (min 20B, + options):} src/dst ports, Seq \#, ACK \#, flags (SYN/ACK/FIN/RST/PSH/URG), window, checksum, urgent pointer.
 \end{itemize}
 
 \subsubsection{Connection Setup (3-Way Handshake)}
@@ -122,6 +123,7 @@
 	\item Connectionless; no setup, no reliability, no ordering.
 	\item Uses IP+port for multiplexing/demultiplexing (socket identified by destination port).
 	\item Very small header; no congestion control, so can send as fast as the application wants.
+	\item \textbf{UDP header (8B):} src/dst ports, length, checksum.
 	\item Useful when timeliness matters more than reliability (e.g., streaming, VoIP), or when simplicity/overhead is key.
 	\item Also used for request/response protocols like DNS and for DHCP (no TCP connection possible before address assignment).
 	\item Reliability (if needed) is handled at the application layer.
