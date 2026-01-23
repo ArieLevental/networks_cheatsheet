@@ -21,10 +21,139 @@
 \begin{itemize}
 	\item mili=$10^{-3}$, micro=$10^{-6}$, nano=$10^{-9}$, kilo=$10^{3}$, mega=$10^{6}$, giga=$10^{9}$.
 	\item In STP protcol problems, don't forget to document the Router, and who knows its location.
-	\item When filling an outgoing message table (e.g. protocol messages), remember DHCP is in broadcast, ARP is needed to resolve MAC addresses (and is in Layer 2), and notice what LAN is followed.
-	\item \textbf{You can't refer to MAC/IP addresses you don't know yet!}
+	\item When filling an outgoing message table (e.g. protocol messages)
+	\begin{itemize}
+		\item remember DHCP is in broadcast, ARP is needed to resolve MAC addresses (and is in Layer 2), and notice what LAN is followed.
+		\item \textbf{You can't refer to MAC/IP addresses you don't know yet!}
+		\item If it's a TCP message, we need to handshake first (SYN, SYN-ACK, ACK) before sending data.
+	\end{itemize}
 	\item In Reliable Data Transfer Protocols, $T_{out}$ is also considered a parameter!
 	\item When sending a packet with additional validity data (2D parity, checksum, CRC), this data isn't part of the effective payload (but is part of the total bits sent).
 	\item In Traffic Engineering, try to locate the bottleneck using cuts; consider using the commodities vertices;
 	\item In BGP we can define multiple IP prefixes for one AS, and give different policies (or priorities) to each prefix, from a different AS, hence splitting traffic based on prefix as well.
 \end{itemize}
+
+\noindent\hrulefill
+
+\vspace{0.1cm}
+BGP - All conditions but \textbf{Topology} are met (not safe):
+\begin{tikzpicture}[scale=1.3,
+	every node/.style={circle, draw, thick, minimum size=0.4cm, font=\bfseries},
+	box/.style={rectangle, draw, minimum size=1cm, font=\footnotesize, align=center, fill=white},
+	arrow/.style={-{Latex[length=3.2mm,width=2.2mm]}, thick},
+	peer/.style={thick},
+	]
+
+	% ---------------- Nodes ----------------
+	% Center node
+	\node (nd) at (1.6, 1.3) {d};
+	
+	% Outer nodes
+	\node (n1) at (3.2, 2) {1};
+	\node (n2) at (1.6, 0.3) {2};
+	\node (n3) at (0, 2) {3};
+
+	% ---------------- Preferences ----------------
+	% Node 1 preference list
+	\node[box] (p1) at (4.1, 1.8) {Pref:\\ 12d\\ 1d \\ 123d};
+	% Node 2 preference list
+	\node[box] (p2) at (0.3, 0.6) {Pref:\\ 23d \\ 2d \\ 231d};
+	% Node 3 preference list
+	\node[box] (p3) at (-0.9, 1.8) {Pref:\\ 31d \\ 3d \\ 312d};
+
+	% ---------------- Advertisements ----------------
+	% Direction: customer -> provider (traffic flows reverse)
+    
+	% 2 advertises to 1 (2 is customer of 1)
+    \draw[arrow] (n2) -- (n1);
+    
+	% 3 advertises to 2 (3 is customer of 2)
+    \draw[arrow] (n3) -- (n2);
+
+	% 1 advertises to 3 (1 is customer of 3)
+    \draw[arrow] (n1) -- (n3);
+
+	% ---------------- Links to d ----------------
+    \draw[arrow] (nd) -- (n1);
+    \draw[arrow] (nd) -- (n2);
+    \draw[arrow] (nd) -- (n3);
+
+\end{tikzpicture}
+\vspace{0.1cm}
+
+\textit{Topology condition is violated as there is a customer-provider cycle (1-2-3-1).}
+\textit{The network is not BGP-safe since there is no stable state.}
+
+
+\noindent\hrulefill
+
+\vspace{0.1cm}
+BGP - All conditions but \textbf{Preference} are met (not safe):
+\begin{tikzpicture}[scale=1.3,
+	every node/.style={circle, draw, thick, minimum size=0.4cm, font=\bfseries},
+	box/.style={rectangle, draw, minimum size=1cm, font=\footnotesize, align=center, fill=white},
+	arrow/.style={-{Latex[length=3.2mm,width=2.2mm]}, thick},
+	peer/.style={thick},
+	]
+
+	% ---------------- Nodes ----------------
+	\node (n1) at (0, 2) {1};
+	\node (n2) at (3.2, 2) {2};
+	\node (nd) at (1.6, 1.5) {d};
+
+	% ---------------- Preferences ----------------
+	% Node 1 preference list
+	\node[box] (p1) at (-0.9, 1.8) {Pref:\\ 12d\\ 1d};
+	% Node 2 preference list
+	\node[box] (p2) at (4.1, 1.8) {Pref:\\21d \\ 2d};
+
+	% ---------------- Links ----------------
+	% 2 -> 1 (2 is customer of 1)
+	\draw[arrow] (n2) -- (n1);
+	% d -> 2 (d is customer of 2)
+	\draw[arrow] (nd) -- (n2);
+	% 1 -- d (peer link)
+	\draw[peer] (n1) -- (nd);
+\end{tikzpicture}
+\vspace{0.1cm}
+
+\textit{The preference condition is violated as AS 2 prefers the route 21d over 2d.}
+\textit{The network is not BGP-safe since there are two stable states:}\\
+(a) $1: 1d,\; 2: 21d$ \quad (b) $1: 12d,\; 2: 2d$
+
+\noindent\hrulefill
+
+\vspace{0.1cm}
+BGP - All conditions but \textbf{Export} are met (not safe):
+\begin{tikzpicture}[scale=1.3,
+	every node/.style={circle, draw, thick, minimum size=0.4cm, font=\bfseries},
+	box/.style={rectangle, draw, minimum size=1cm, font=\footnotesize, align=center, fill=white},
+	arrow/.style={-{Latex[length=3.2mm,width=2.2mm]}, thick},
+	]
+
+	% ---------------- Nodes ----------------
+	\node (n1) at (0, 2) {1};
+	\node (n2) at (3.2, 2) {2};
+	\node (nd) at (1.6, 1.5) {d};
+
+	% ---------------- Preferences ----------------
+	% Node 1 preference list
+	\node[box] (p1) at (-0.9, 1.8) {Pref:\\ 12d\\ 1d};
+	% Node 2 preference list
+	\node[box] (p2) at (4.1, 1.8) {Pref:\\21d \\ 2d};
+
+	% ---------------- Links ----------------
+	% 1 -> 2 (1 is customer of 2)
+	\draw[arrow] (n1) -- (n2);
+
+	% 1 -> d
+	\draw[arrow] (n1) -- (nd);
+
+	% 2 -> d
+	\draw[arrow] (n2) -- (nd);
+\end{tikzpicture}
+\vspace{0.1cm}
+
+\textit{The export condition is violated as AS 1 exports the route 1d to AS 2.}
+\textit{The network is not BGP-safe since there are two stable states:}\\
+(a) $1: 1d,\; 2: 21d$ \quad (b) $1: 12d,\; 2: 2d$
