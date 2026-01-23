@@ -37,8 +37,38 @@
 
 \subsection{Computer networks vs Distributed systems}
 \subsubsection{Circuit and Packet Switching}
-\subsubsection{Timing}
+\begin{itemize}
+    \item \textbf{Circuit Switching:} establish a dedicated end-to-end path before sending.
+    \begin{itemize}
+        \item Predictable performance/QoS once connected; data follows a fixed route.
+        \item Low per-packet overhead after setup; no per-packet path info needed.
+        \item If no free resources, the connection is blocked (no service).
+        \item Inefficient for bursty traffic: reserve peak bandwidth even if average is low.
+        \item All-or-nothing reliability: a failure breaks the circuit; must re-establish.
+        \item Setup delay: at least one RTT to establish the circuit.
+    \end{itemize}
+    \item \textbf{Packet Switching:} no dedicated path; send data as packets over shared links.
+    \begin{itemize}
+        \item Best-effort service; packets can be delayed, dropped, or arrive out of order.
+        \item Per-packet headers add overhead; requires reassembly at the destination.
+        \item Uses \textbf{statistical multiplexing} (assumption that traffic in network splits evenly over time): efficient for bursty traffic (no peak reservation).
+        \item Easier interconnection across organizations; more flexible routing.
+        \item[] \textit{\textbf{Note:} most modern networks (e.g., the Internet) use packet switching.}
+    \end{itemize}
+\end{itemize}
 \subsubsection{Multiplexing}
+\begin{itemize}
+    \item \textbf{Goal:} share one physical link among multiple circuits/flows.
+    \item \textbf{TDM (Time Division):} divide time into frames, frames into slots; each flow gets fixed slots.
+    \begin{itemize}
+        \item Requires tight synchronization and buffering so a sender has data when its slot arrives.
+        \item Predictable delay, but unused slots waste bandwidth (inefficient for bursty traffic).
+    \end{itemize}
+    \item \textbf{FDM (Frequency Division):} split bandwidth into frequency bands; each flow gets a band.
+    \begin{itemize}
+        \item No time synchronization, but each flow only uses a fraction of the spectrum.
+    \end{itemize}
+\end{itemize}
 
 \subsection{The OSI Model (5-Layer model)}
 \begin{itemize}

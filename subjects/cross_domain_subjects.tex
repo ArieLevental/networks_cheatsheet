@@ -1,0 +1,30 @@
+\section{Cross-Domain Subjects (Exam Oriented)}
+
+\subsubsection{Protocol influence on path selection:}
+\noindent\makebox[\columnwidth][c]{%
+	\renewcommand{\arraystretch}{1.2}
+	\setlength{\tabcolsep}{1pt}
+	\resizebox{\columnwidth}{!}{
+		\begin{tabular}{l|l|c|p{6cm}}
+		\textbf{Protocol} & \textbf{Metric / Mechanism} & \textbf{Minimizes Weight?} & \textbf{Reasoning} \\
+		\hline
+		\textbf{STP} & Loop Prevention (Tree) & \textbf{No} & Blocks physical links to prevent loops. Traffic must follow the tree, even if a direct (shorter) physical link exists. \\
+		\textbf{OSPF} & Cost (Bandwidth) & \textbf{Yes} & Uses Dijkstra's algorithm to mathematically guarantee the path with the lowest total cost. \\
+		\textbf{RIP} & Hop Count & \textbf{Yes} & Uses Bellman-Ford to find the path with the fewest hops (minimizes $weight=1$ per link). \\
+		\textbf{BGP} & Policy (Attributes) & \textbf{No} & Prioritizes business rules (e.g., Local Preference) over path length. A longer "Customer" path is preferred over a shorter "Provider" path. \\
+		\textbf{ECMP} & Load Balancing & \textbf{N/A} & Mechanisms that split traffic across multiple paths \textit{after} the routing protocol has already identified them as having equal (minimal) weight. \\
+		\end{tabular}
+	}
+}
+
+\subsubsection{General tips and tools:}
+\begin{itemize}
+	\item mili=$10^{-3}$, micro=$10^{-6}$, nano=$10^{-9}$, kilo=$10^{3}$, mega=$10^{6}$, giga=$10^{9}$.
+	\item In STP protcol problems, don't forget to document the Router, and who knows its location.
+	\item When filling an outgoing message table (e.g. protocol messages), remember DHCP is in broadcast, ARP is needed to resolve MAC addresses (and is in Layer 2), and notice what LAN is followed.
+	\item \textbf{You can't refer to MAC/IP addresses you don't know yet!}
+	\item In Reliable Data Transfer Protocols, $T_{out}$ is also considered a parameter!
+	\item When sending a packet with additional validity data (2D parity, checksum, CRC), this data isn't part of the effective payload (but is part of the total bits sent).
+	\item In Traffic Engineering, try to locate the bottleneck using cuts; consider using the commodities vertices;
+	\item In BGP we can define multiple IP prefixes for one AS, and give different policies (or priorities) to each prefix, from a different AS, hence splitting traffic based on prefix as well.
+\end{itemize}

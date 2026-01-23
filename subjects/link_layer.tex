@@ -24,19 +24,19 @@
 \subsection{ALOHA protocol}
 \begin{itemize}
 	\item Random access on shared medium; collisions if overlap. Frame time $T$ (size $L$, rate $B$): $T=L/B$.
-	\item \textbf{Binomial model:} $N$ users, each transmits in a slot w.p. $p$.
-	\item \textbf{Poisson model:} aggregate attempts are Poisson with rate $G$ (attempts/slot).
-	\item \textbf{Slotted ALOHA (align to slots):}
+    \item \textbf{Binomial model:} $N$ users, each transmits in a frame time $T$ w.p. $p$.
+    \item \textbf{Poisson model:} Aggregate attempts are Poisson with rate $G$ (attempts per frame time $T$).
+    \item \textbf{Slotted ALOHA} (align to slots of size $T$):
 	\begin{itemize}
-		\item Success if exactly one tx in a slot.
-		\item Binomial: $P(\text{succ})=Np(1-p)^{N-1}$, max at $p=1/N$ gives $S_{\max}\approx 1/e$.
-		\item Poisson: $S=Ge^{-G}$, $S_{\max}=1/e$ at $G=1$.
+		\item Success if exactly one transmission in a slot.
+        \item Binomial: $\mathbb{P}_{\text{suc}}=Np(1-p)^{N-1}$, max at $p^\star=1/N$ gives max goodput (when $N$ is large) of $\eta\approx 1/e$.
+        \item Poisson: $\eta=Ge^{-G}$, Max $\eta_{\max}=1/e$ at $G=1$.
 	\end{itemize}
-	\item \textbf{Pure ALOHA (no slots):}
+	\item \textbf{Pure ALOHA} (unslotted):
 	\begin{itemize}
-		\item Vulnerable period $2T$.
-		\item Binomial (approx): $P(\text{succ})\approx Np(1-p)^{2(N-1)}$, max at $p\approx 1/(2N)$ gives $S_{\max}\approx 1/(2e)$.
-		\item Poisson: $S=Ge^{-2G}$, $S_{\max}=1/(2e)$ at $G=1/2$.
+		\item Vulnerable period $2T$ (current frame $\pm$ overlap).
+        \item Binomial (heuristic): $\mathbb{P}_{\text{suc}} \approx Np(1-p)^{2(N-1)}$, max at $p^\star=1/(2N-1)$ gives max goodput (when $N$ is large) of $\eta\approx 1/(2e)$.
+        \item Poisson: $\eta=Ge^{-2G}$. Max $\eta_{\max}=1/(2e)$ at $G=0.5$.
 	\end{itemize}
 \end{itemize}
 
@@ -100,7 +100,7 @@
 	\item \textbf{CSMA/CD (classic shared medium):}
 	\begin{enumerate}
 		\item Sense channel; if idle transmit, else wait.
-		\item If collision detected while tx, abort and send jam.
+		\item If collision detected while transmission, abort and send jam.
 		\item \textbf{Binary exponential backoff:} after $m$-th collision pick $k\in\{0,\ldots,2^m-1\}$, wait $k\cdot512$ bit-times, retry.
 	\end{enumerate}
 \end{itemize}
@@ -116,35 +116,50 @@
 		\item \textbf{Switch table:} (MAC, port, TTL). Learn from source MAC+ingress port on each frame.
     \end{itemize}
     \item \textbf{Loops:} cause broadcast storms, multiple frame copies, MAC table instability.
-	\item \subsubsection{Spanning Tree Protocol (STP):} prevent L2 loops by blocking redundant links; converges to a loop-free spanning tree.
+	\item \subsubsection{Spanning Tree Protocol (STP):} 
 	\begin{itemize}
-		\item \textbf{BPDUs (Hello messages):} (RID, RootCost, SID, PortID) advertised periodically; switches keep the \emph{best} tuple.
-		\item \textbf{Root election:} lowest RID wins (all switches start assuming they are root).
-		\item \textbf{Root port (per non-root switch):} port with lowest RootCost to root; ties: lower upstream SID, then lower PortID.
-		\item \textbf{Designated port (per LAN segment):} switch with lowest RootCost on that segment forwards; ties: lower SID, then lower PortID.
-		\item \textbf{Forwarding:} root ports + designated ports forward; all others block (no data forwarding, still send BPDUs).
-	\end{itemize}
+        \item \textbf{Goal:} Prevent Layer 2 loops by logically blocking redundant paths; converges to a loop-free spanning tree.
+        \item \textbf{Mechanism:} Switches exchange \textbf{BPDUs} (Bridge Protocol Data Units) containing (RootID, Cost, SenderID, PortID).
+        \item \textbf{Algorithm Steps:}
+        \begin{itemize}
+            \item \textbf{1. Elect Root Bridge:} Switch with the lowest \textbf{Bridge ID} becomes Root. (Initially, all claim to be Root).
+            \item \textbf{2. Select Root Ports (RP):} Each \emph{non-root} switch selects \textbf{one} port with the best path to the Root.
+            \item \textbf{3. Select Designated Ports (DP):} Each \emph{link/segment} selects \textbf{one} port to forward traffic (from the switch with the best path to Root).
+            \item \textbf{4. Block Others:} All non-RP and non-DP ports enter \textbf{Blocking} state (receive BPDUs, but drop data).
+        \end{itemize}
+        \item \textbf{Tie-Breakers (Lowest wins):}
+        \begin{enumerate}
+            \item Lowest \textbf{Root Path Cost}.
+            \item Lowest \textbf{Sender Bridge ID} (upstream switch).
+            \item Lowest \textbf{Sender Port ID}.
+        \end{enumerate}
+    \end{itemize}
 \end{itemize}
 
-\subsection{Errors Detection}
+\subsection{Error Detection \& Correction}
 \begin{itemize}
-	\item Goal: detect (and sometimes correct) bit errors introduced by noise on the link.
-	\item \textbf{Repetition code (3-repetition):} send each bit 3 times; bit is chosen by majority vote.
-	\item \textbf{1D parity:} add one parity bit so total 1s is even/odd; detects any odd number of bit errors, cannot locate/correct.
-	\item \textbf{2D parity:} arrange bits in a matrix with row+column parity; detects many multi-bit errors and can correct a single-bit error (intersection).
-	\item \textbf{CRC:} \todo \textbf{Consider removing this if not in Exams} treat bits as polynomial over $GF(2)$; append $r$-bit remainder so frame is divisible by generator $G(x)$.
-	\item CRC detects all single-bit errors, all burst errors of length $\le r$, and most longer bursts (prob. of miss $\approx 2^{-r}$).
+    \item \textbf{Key Relation:} To detect $d$ errors, need Hamming Distance $d_{min} \ge d+1$. To correct $c$ errors, need $d_{min} \ge 2c+1$.
+    \item \textbf{Repetition (3x):} Send bit 3 times. Majority vote corrects 1 error. High overhead.
+    \item \textbf{1D Parity:} Add 1 bit (odd/even). Detects odd \# of errors. $d_{min}=2$.
+    \item \textbf{2D Parity:} Matrix of bits. Row+Col parities.
+    \begin{itemize}
+        \item Detects up to 3 errors (guaranteed).
+        \item Fails to detect 4 errors if they form a rectangle.
+        \item Corrects 1 error (intersection of bad row/col).
+    \end{itemize}
+    \item \textbf{Internet Checksum:} Sum 16-bit words (1's complement), append inverse. Used in IP/TCP. Detects most errors.
 \end{itemize}
 
 \begin{center}
-\renewcommand{\arraystretch}{1.1}
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{l|c|c|c}
-\textbf{Code} & \textbf{Overhead} & \textbf{Ability to correct} & \textbf{Ability to detect} \\
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l|c|c|c|c}
+\textbf{Code} & \textbf{Overhead Ratio} & \textbf{$d_{min}$} & \textbf{Can correct} & \textbf{Can detect} \\
 \hline
-Repetition (3 times) & $2$ & $1$ & $2$ \\
-1D Parity & $\frac{1}{N}$ & $0$ & $1$ \\
-2D parity & $\frac{2N+1}{N^2}$ & $1$ & $3$ \\
+Repetition (3x) & $2/1$ ($200\%$) & $3$ & $1$ & $2$ \\
+1D Parity & $1/N$ & $2$ & $0$ & $1$ \\
+2D Parity ($N \times N$) & $\approx 2/N$ & $4$ & $1$ & $3$ \\
+Internet Checksum & $16/L_{frame}$ & $\sim 2$ & $0$ & Varies \\
 \end{tabular}
 \end{center}
 

@@ -12,9 +12,9 @@
     \end{itemize}
     \item \textbf{AS-level topology:} Common categories
     \begin{itemize}
-        \item \textbf{Tier-1:} No providers; global reach via peering.
+        \item \textbf{Tier-1} ($\sim 10$ ASes, e.g. AT\&T): No providers; global reach via peering.
         \item \textbf{Tier-2:} Providers + peers (buys some transit).
-        \item \textbf{Stub AS:} Single provider; no downstream customers.
+        \item \textbf{Stub AS} ($85\%$ of ASes): Single provider; no downstream customers.
     \end{itemize}
 \end{itemize}
 
@@ -34,11 +34,12 @@
     \item \textbf{Steady state:} KEEPALIVE + incremental UPDATE/NOTIFICATION.
 \end{enumerate}
 
+
 \subsection{iBGP, eBGP and IGP interaction}
 \begin{itemize}
     \item \textbf{eBGP:} Between ASes; increments AS\_PATH, may change NEXT\_HOP.
-    \item \textbf{iBGP:} Within AS; no AS\_PATH prepend; needs full mesh or route-reflectors.
-    \item \textbf{IGP:} Provides internal reachability to BGP NEXT\_HOP.
+    \item \textbf{iBGP:} Within AS; distributes reachability to \textit{external} prefixes and maps them to an egress point.
+    \item \textbf{IGP:} Computes shortest paths \textit{within} the AS and provides reachability to BGP NEXT\_HOP / egress routers.
     \item \textbf{Best-path inside AS (hot-potato):} \textcolor{gray}{(1)} Highest LOCAL\_PREF, then \textcolor{gray}{(2)} shortest AS\_PATH, then \textcolor{gray}{(3)} closest egress (lowest IGP cost), then \textcolor{gray}{(4)} tie-break.
 \end{itemize}
 
@@ -51,10 +52,10 @@
         \item \textbf{General:} BGP is safe (converges) iff the system contains no Dispute Wheel.
         \item Under Gao-Rexford, BGP converges to a stable outcome (BGP-safe, no Dispute Wheel exists).
     \end{itemize}
-    \item \textbf{Gao-Rexford conditions (commercial routing)}
+    \subsubsection{Gao-Rexford conditions (commercial routing)}
     \begin{itemize}
         \item \textbf{Topology:}  No customer-provider cycles in the AS graph.
-        \item \textbf{Preference:} Prefer routes from customers $>$ peers $>$ providers.
+        \item \textbf{Preference:} Prefer routes from customers over peers/providers.
         \item \textbf{Export:} Advertise customer routes to all; peer/provider routes only to customers.
     \end{itemize}
 \end{itemize}

@@ -2,19 +2,33 @@
 
 \subsection{DNS (Domain Name System)}
 Maps between hostnames and IP addresses. Each server is authoritative for its domain and can resolve queries or forward them; resolution ends when an authoritative server replies or the requested data is found in cache.
-
-\textbf{Record types:}
 \begin{itemize}
-	\item \textbf{A}: maps an Internet hostname to an IP address.
-	\item \textbf{NS}: maps a domain name (e.g., \texttt{google.com}) to the server responsible for it.
-	\item \textbf{CNAME}: maps a hostname to its canonical name, e.g., \texttt{wedsac.mit.com} is actually \texttt{www.mit.com}.
-	\item \textbf{PTR}: reverse of A (IP address to hostname).
-	\item \textbf{MX}: maps a hostname to the mail server that handles it.
+    \item \textbf{RR Format} (Resource Record): $(Name, Value, Type, TTL)$.
+    \item \textbf{Record types:}
+    \begin{itemize}
+		\item \textbf{A}: maps an Internet hostname to an IP address.
+		\item \textbf{NS}: maps a domain name (e.g., \texttt{google.com}) to its responsible server.
+		\item \textbf{CNAME}: maps a hostname to its canonical name, e.g., \texttt{wedsac.mit.com} is actually \texttt{www.mit.com}.
+		\item \textbf{PTR}: reverse of A (IP address to hostname).
+		\item \textbf{MX}: maps a hostname to the mail server that handles it.
+	\end{itemize}
+	\item \textbf{Server Hierarchy:}
+    \begin{itemize}
+        \item \textbf{Local DNS (Resolver):} The first hop (ISP/Campus). Acts as a \textit{Recursive Server} (performs the full lookup for the client) and caches results, according to received TTL (Time-To-Live).
+        \item \textbf{Root Server:} Top of the tree; directs queries to TLD servers (com, org).
+        \item \textbf{Authoritative Server:} The final server that knows the actual answer.
+    \end{itemize}
 \end{itemize}
-
 DNS queries and replies use UDP and typically port 53 (smaller packets for requests/replies).
 
-Servers return a \textbf{TTL}; the answer is cached for that duration.
+\textbf{Advantages of DNS (names instead of IPs):}
+\begin{enumerate}
+	\item Humans are not good at remembering IP addresses.
+	\item You can change a server's IP behind the scenes without users noticing.
+	\item You can map multiple IP addresses to one name for load balancing.
+	\item You can map multiple names to a single IP (e.g., \texttt{google.com} and \texttt{gmail.com}).
+\end{enumerate}
+
 
 \textbf{Glued response:} if the client needs to query the authoritative server but does not know its IP, the server returns the IP in the NS response.
 

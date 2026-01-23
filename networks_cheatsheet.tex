@@ -28,7 +28,7 @@
 
 % Formatting and styling packages
 \usepackage{titlesec}
-\usepackage{enumitem}
+\usepackage[inline]{enumitem}
 \usepackage{helvet}
 
 % Font settings
@@ -39,9 +39,9 @@
 \setlength{\fboxsep}{1pt} % Color box padding
 
 % Title formatting
-\titleformat{\section}{\fontsize{7.2pt}{7.2pt}\selectfont\bfseries}{\thesection}{0em}{\colorbox{yellow!70}}
-\titleformat{\subsection}{\fontsize{6pt}{6pt}\selectfont\bfseries}{\thesubsection}{0em}{\colorbox{green!20}}
-\titleformat{\subsubsection}{\fontsize{6pt}{6pt}\selectfont\bfseries}{\thesubsubsection}{0em}{\colorbox{blue!10}}
+\titleformat{\section}{\fontsize{9.5pt}{9.5pt}\selectfont\bfseries}{\thesection}{0em}{\colorbox{yellow!70}}
+\titleformat{\subsection}{\fontsize{8pt}{8pt}\selectfont\bfseries}{\thesubsection}{0em}{\colorbox{green!20}}
+\titleformat{\subsubsection}{\fontsize{8pt}{8pt}\selectfont\bfseries}{\thesubsubsection}{0em}{\colorbox{blue!10}}
 \titlespacing{\section}{0pt}{0pt}{0pt}
 \titlespacing{\subsection}{0pt}{0pt}{0pt}
 \titlespacing{\subsubsection}{0pt}{0pt}{0pt}
@@ -61,13 +61,13 @@
 
 % Document settings
 \raggedright
-\fontsize{6pt}{6.2pt}\selectfont
+\fontsize{8pt}{8.2pt}\selectfont
 
 % Global indentation variables
 \newlength{\listindentone}
 \newlength{\listindenttwo}
-\setlength{\listindentone}{10pt}
-\setlength{\listindenttwo}{4pt}
+\setlength{\listindentone}{12pt}
+\setlength{\listindenttwo}{6pt}
 
 % List spacing control
 \setlist[itemize,1]{nosep,leftmargin=\listindentone}
@@ -93,7 +93,7 @@
 \setlength{\partopsep}{0pt}
 
 % Multi-column layout
-\begin{multicols*}{4}
+\begin{multicols*}{3}
     \columnseprule=0.2pt
 
     % Content sections
@@ -103,6 +103,7 @@
     \input{subjects/transport_layer}
     \input{subjects/application_layer}
     \input{subjects/interdomain_routing}
+    \input{subjects/cross_domain_subjects}
     % \input{subjects/math}
     % \input{subjects/regression}
     % \input{subjects/classification}

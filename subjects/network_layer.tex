@@ -2,20 +2,33 @@
 
 \subsection{Introduction to IP addressing}
 \begin{itemize}
-	\item IPv4 address = 32 bits (a.b.c.d), identifies interface (host/router can have multiple interfaces).
-	\item Subnet vs host split via CIDR: a.b.c.d/$x$ where $x$ = prefix length (subnet mask).
+	\item IPv4 address = 32 bits (a.b.c.d - 4 octets, each one 8 bits, ranging 0-255), identifies interface (host/router can have multiple interfaces).
+	\item Subnet vs host split via CIDR notation: a.b.c.d/$x$ where $x$ = prefix length (subnet mask).
 	\item Example: 192.168.1.178/24 $\Rightarrow$ subnet 192.168.1, host 178.
-	\item Hierarchical addressing enables routing scalability; ISPs advertise prefixes.
+	\item The "Power of 2" Rule: adding 1 to the prefix length \textbf{cuts} the number of available host addresses in half.
+	\item \textbf{Why IP is Hierarchical:} Unlike MAC addresses (flat/random), IP addresses are assigned topologically. This allows \textbf{Route Aggregation} (summarizing thousands of hosts into one table entry), which is critical for Internet scalability; ISPs advertise prefixes.
 	\item \textbf{Router:} network-layer device that connects networks and forwards IP packets based on destination prefixes (routing table), decoupling L2 domains.
 	\item \textbf{Router + ARP/L2:} for each hop, the router uses ARP on the outgoing interface to learn the next-hop MAC, rewrites the L2 header, and forwards the same IP packet (new L2 header per link).
 	\item Forwarding uses \textbf{longest prefix match}.
-	\item \textbf{Address discovery protocols:}
+	\item \textbf{Address discovery protocols:} DHCP (get IP config from server), ARP (map IP to MAC on LAN), DNS (map hostname to IP).
 \end{itemize}
 
-\begin{center}
-    \textbf{IP Packet Diagram}
-    \includegraphics[width=0.9\columnwidth]{images/ip_packet_diagram.png}
-\end{center}
+% \begin{center}
+%     \textbf{IP Packet Diagram}
+%     \includegraphics[width=0.9\columnwidth]{images/ip_packet_diagram.png}
+% \end{center}
+
+\subsubsection*{IP Packet Format}
+\begin{itemize}[leftmargin=*] \setlength\itemsep{0em}
+	\item \textbf{Header} (3 32-bit rows):
+    \begin{enumerate*}[label={}] 
+		\item \textbf{[0-31]} Version(4), IHL(4), TOS(8), Total length(16)
+		\item \textbf{[32-63]} Identification(16), Flags(3), Fragment offset(13)
+		\item \textbf{[64-95]} TTL(8), Protocol(8), Header checksum(16)
+    \end{enumerate*}
+	\item \textbf{Addresses:} Source address (32), Destination address (32)
+	\item \textbf{Extra:} Options (0-40B) + Data (up to 65,515B)
+\end{itemize}
 
 \subsection{NAT (Network Address Translation)}
 \begin{itemize}
@@ -30,8 +43,9 @@
 	\item \textbf{How it works:}
 	\begin{itemize}
 		\item NAT maintains a translation table mapping $(\text{private IP}, \text{private port}) \leftrightarrow (\text{public IP}, \text{public port})$.
-		\item For outbound packets, NAT rewrites source IP:port and records the mapping.
+		\item For outbound packets, NAT rewrites source IP:port and records mapping.
 		\item For inbound packets, NAT looks up the destination port and rewrites to the internal host; if no mapping, it drops.
+		\item[] \textit{Note: To allow connection to a specific port, we need to set it, as well as publish it. A server might use a \textbf{static NAT} mapping or \textbf{port forwarding} to allow presistent inbound access.}
 	\end{itemize}
 	\item \textbf{Example setup:} LAN hosts A=192.168.0.1 (TCP ports 1024,2000), B=192.168.0.2 (UDP ports 1000,2000), C=192.168.0.3 (TCP port 1024). Public IP: 132.58.38.2. NAT allocates public ports 5001+.
 	\item \textbf{Example table (public IP 132.58.38.2):}
@@ -178,9 +192,9 @@ Robustness & Wrong \emph{link} cost affects own table & Wrong \emph{path} cost p
 	\item Workflow: measure traffic/topology, build network-wide model, then optimize weights.
 	\item Common objectives: maximize throughput, minimize congestion (max-link load), fairness.
 	\begin{itemize}
-		\item Minimize Congestion - minimize the maximum link utilization: \\ $\min \max_{e\in E} \frac{\text{load}(e)}{\text{capacity}(e)}$.
-		\item Maximize Throughput - maximize the total accepted traffic: \\ $\max \sum_{(s,t)} \text{flow}(s,t)$.
-		\item Maximum Multicommodity Flow (Max-MCF): maximize total flow between all source-destination pairs subject to link capacities.
+		\item \textbf{Minimize Congestion} - minimize the maximum link utilization: \\ $\min \max_{e\in E} \frac{\text{load}(e)}{\text{capacity}(e)}$.
+		\item \textbf{Maximize Throughput} - maximize the total accepted traffic: \\ $\max \sum_{(s,t)} \text{flow}(s,t)$.
+		\item \textbf{Maximum Multicommodity Flow (Max-MCF):} maximize total flow between all source-destination pairs subject to link capacities.
 		\item \textbf{Commodities} are tuples $(s,t,d)$ that represent demand $d$ from source $s$ to target $t$, e.g., $(A,B,12)$.
 		\item \textbf{Max-MCF$_{\text{OSPF/ECMP}}$:} maximize total flow using OSPF+ECMP (flows can split only on shortest paths).
 		\item \textbf{Max-MCF$_{\text{OPT}}$:} maximize total flow with arbitrary splitting (no shortest-path restriction).
@@ -195,9 +209,9 @@ Robustness & Wrong \emph{link} cost affects own table & Wrong \emph{path} cost p
 	\end{itemize}
 \end{itemize}
 
-\subsubsection{Modelling networks as linear programs}
-\todo ?
-\\
+% \subsubsection{Modelling networks as linear programs}
+% \todo ?
+% \\
 
 \subsubsection{ECMP}
 

@@ -134,14 +134,15 @@ These protocols are the conceptual building blocks for reliability. While TCP is
 
 \subsubsection{Stop-and-Wait}
 \begin{itemize}
-	\item \textbf{Mechanism:} Sender sends one packet, waits for ACK; if ACK/packet lost, timeout triggers retransmission.
+    \item \textbf{Mechanism:} Sender sends one packet, waits for ACK; if ACK/packet lost, timeout triggers retransmission.
     \item \textbf{Efficiency:} Very low in "long fat pipes" (high RTT). 
-    \item \textbf{Utilization:} $U_{sender} = \frac{L/R}{RTT + L/R}$ \\ (where $L$=packet length, $R$=transmission rate).
-	\item \textbf{Timeout lower bound:} $T_{out} \ge 2T_{prop} + T_{ack} + T_{pt}$.
-	\item $T_{prop} = \frac{distance}{propagation\ speed}$, $T_{ack} = \frac{ACK\ size}{rate}$, \\ $T_{pt}$ = processing time.
-	\item \textbf{Goodput (loss prob. $p$ for both data and ACK):} $\text{Goodput} = \frac{T_{packet}}{\frac{1}{(1-p)^2}(T_{packet}+T_{out})} = \frac{T_{packet}(1-p)^2}{T_{packet}+T_{out}}$.
-	\item[] \textit{Note: Here we assume independent losses for data and ACK packets. If ACK losses are negligible, replace $(1-p)^2$ with $(1-p)$ in the Goodput formula, since now it's Geometric with success prob. $(1-p)$. \\ also, if $\overline{T_{out}}$ of successful transmissions is differenet than that of retransmissions, we would need to weight accordingly.}
-	\item[] $\text{Goodput} = \frac{T_{packet}}{\left(\frac{1}{(1-p)^2}-1\right)(T_{packet}+T_{out})+(T_{packet}+\overline{T_{out}})}$
+    \item \textbf{Transmission Delay:} $T_{packet} = L/R$ (where $L$=packet length, $R$=rate).
+    \item \textbf{Utilization:} $U_{sender} = \frac{T_{packet}}{RTT + T_{packet}}$.
+    \item \textbf{Timeout lower bound:} $T_{out} \ge 2T_{prop} + T_{ack} + T_{pt}$.
+    \item $T_{prop} = \frac{distance}{propagation\ speed}$, $T_{ack} = \frac{ACK\ size}{rate}$, \\ $T_{pt}$ = processing time.
+    \item \textbf{Goodput (loss prob. $p$ for both data and ACK):} $\text{Goodput} = \frac{T_{packet}}{\frac{1}{(1-p)^2}(T_{packet}+T_{out})} = \frac{T_{packet}(1-p)^2}{T_{packet}+T_{out}}$.
+    \item[] \textit{Note: Here we assume independent losses for data and ACK packets. If ACK losses are negligible, replace $(1-p)^2$ with $(1-p)$ in the Goodput formula, since now it's Geometric with success prob. $(1-p)$. \\ also, if $\overline{T_{out}}$ of successful transmissions is different than that of retransmissions, we would need to weight accordingly.}
+    \item[] $\text{Goodput} = \frac{T_{packet}}{\left(\frac{1}{(1-p)^2}-1\right)(T_{packet}+T_{out})+(T_{packet}+\overline{T_{out}})}$
 \end{itemize}
 
 \textbf{Pipelined Protocols (Sliding Window):} \\
@@ -152,6 +153,7 @@ Allows multiple unacknowledged packets to be "in-flight" to increase utilization
 	\item \textbf{Receiver:} Uses \textbf{Cumulative ACKs}. If a packet is missing, it discards all subsequent out-of-order packets.
 	\item \textbf{Receiver window:} size 1; accepts only next in-order packet.
 	\item \textbf{On Timeout:} Sender retransmits \textit{all} $N$ transmitted but unACKed packets.
+	\item[] \textit{Note: if ACK for packet $k$ is lost, but ACK for $k+n$ arrives, sender can treat as if all packets up to $k+n$ were ACKed, sliding the window forward accordingly.}
 	\item \textbf{Goodput (loss prob. $p$):} let $a=\frac{T_{out}+T_{packet}}{T_{packet}}$, then $\text{Goodput}_{GBN} = \frac{1-p}{1-p+p a}$.
 \end{itemize}
 \subsubsection{Selective Repeat (SR):}
