@@ -68,10 +68,15 @@
 
 \subsubsection{Flow Control vs. Congestion Control}
 \begin{itemize}
-	\item \textbf{Flow control}: prevents sender from overwhelming the receiver (receiver buffer limits).
-	\item \textbf{Congestion control}: prevents sender from overloading the network.
-	\item Sender can send while: $lastByteSent - lastByteAcked \le \min(RW, cwnd)$.
-	\item When receiver buffer is the limiter, flow control dominates; when network is the limiter, congestion control dominates.
+    \item \textbf{Flow control (rwnd):} Prevents sender from overwhelming receiver's buffer.
+    \begin{itemize}
+        \item Receiver advertises spare buffer space via \textbf{rwnd} in TCP Header.
+        \item \textbf{Zero Window ($rwnd=0$):} Occurs when receiver buffer is full (app slow). Sender must pause.
+        \item \textbf{Deadlock Risk:} If the "Window Update" ACK (opening the window) is lost, sender waits forever.
+        \item \textbf{Solution (Zero Window Probe):} Sender starts \textbf{Persistence Timer}. On expiry, sends 1-byte "probe". Receiver must ACK with current \textit{rwnd}. If still 0, double timer (exp. backoff); if $>0$, resume.
+    \end{itemize}
+    \item \textbf{Congestion control (cwnd):} Prevents sender from overloading the network.
+    \item \textbf{Combined Limit:} Sender allows $\min(rwnd, cwnd)$ unacked bytes.
 \end{itemize}
 
 \subsubsection{Congestion Control Phases (AIMD)}
@@ -140,9 +145,9 @@ These protocols are the conceptual building blocks for reliability. While TCP is
     \item \textbf{Utilization:} $U_{sender} = \frac{T_{packet}}{RTT + T_{packet}}$.
     \item \textbf{Timeout lower bound:} $T_{out} \ge 2T_{prop} + T_{ack} + T_{pt}$.
     \item $T_{prop} = \frac{distance}{propagation\ speed}$, $T_{ack} = \frac{ACK\ size}{rate}$, \\ $T_{pt}$ = processing time.
-    \item \textbf{Goodput (loss prob. $p$ for both data and ACK):} $\text{Goodput} = \frac{T_{packet}}{\frac{1}{(1-p)^2}(T_{packet}+T_{out})} = \frac{T_{packet}(1-p)^2}{T_{packet}+T_{out}}$.
-    \item[] \textit{Note: Here we assume independent losses for data and ACK packets. If ACK losses are negligible, replace $(1-p)^2$ with $(1-p)$ in the Goodput formula, since now it's Geometric with success prob. $(1-p)$. \\ also, if $\overline{T_{out}}$ of successful transmissions is different than that of retransmissions, we would need to weight accordingly.}
-    \item[] $\text{Goodput} = \frac{T_{packet}}{\left(\frac{1}{(1-p)^2}-1\right)(T_{packet}+T_{out})+(T_{packet}+\overline{T_{out}})}$
+    \item \textbf{Goodput (loss prob. $p$ for both data and ACK):} $\text{Goodput} = \frac{T_{packet}}{\left(\frac{1}{(1-p)^2}-1\right)(T_{packet}+T_{out})+\left(T_{packet}+2T_{prop}+T_{ack}+T_{pt}\right)}$
+    \item[] \textit{Note: Here we assume independent losses for data and ACK packets. If ACK losses are negligible, replace $(1-p)^2$ with $(1-p)$ in the Goodput formula, since now it's Geometric with success prob. $(1-p)$.}
+    \item[] \textit{Also, in-case of negligible $T_{ack}$ and $T_{pt}$, and $T_{out} = 2T_{prop}$ (minimal):} $\text{Goodput} = \frac{T_{packet}}{\frac{1}{(1-p)^2}(T_{packet}+T_{out})} = \frac{T_{packet}(1-p)^2}{T_{packet}+T_{out}}$.
 \end{itemize}
 
 \textbf{Pipelined Protocols (Sliding Window):} \\

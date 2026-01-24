@@ -94,17 +94,6 @@
 	\item Used to deliver frames on same LAN; flat (non-hierarchical), portable across LANs.
 	\item Usually burned-in, but can be software-set.
 \end{itemize}
-\subsubsection{Ethernet}
-\begin{itemize}
-	\item Dominant wired LAN; many speed generations; cheap NICs.
-	\item \textbf{CSMA/CD (classic shared medium):}
-	\begin{enumerate}
-		\item Sense channel; if idle transmit, else wait.
-		\item If collision detected while transmission, abort and send jam.
-		\item \textbf{Binary exponential backoff:} after $m$-th collision pick $k\in\{0,\ldots,2^m-1\}$, wait $k\cdot512$ bit-times, retry.
-	\end{enumerate}
-\end{itemize}
-
 \subsection{Interconnecting broadcast domains}
 \begin{itemize}
 	\item \textbf{Switch:}
