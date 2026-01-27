@@ -28,7 +28,18 @@
 		\item If it's a TCP message, we need to handshake first (SYN, SYN-ACK, ACK) before sending data.
 	\end{itemize}
 	\item In Reliable Data Transfer Protocols, $T_{out}$ is also considered a parameter!
-	\item When sending a packet with additional validity data (2D parity, checksum, CRC), this data isn't part of the effective payload (but is part of the total bits sent).
+	\item \textbf{Random Strategy} (e.g. Mode A w.p. $q$, Mode B w.p. $1-q$ for \textit{every} attempt).
+		\begin{itemize}
+			\item \textbf{TRAP:} \underline{Never} calculate Goodput as a weighted average ($G_{total} \neq q G_A + (1-q) G_B$). You must average the \textbf{Time}.
+			\item \textbf{Step 1 (Global Success):} $P_{tot} = q \cdot P_{succ|A} + (1-q) \cdot P_{succ|B}$.
+			\item \textbf{Step 2 (Conditional Times):} Transmission times often differ (e.g., extra parity bits). You must weight the time based on which mode succeeded/failed.
+			\item[] $E[T_{succ}] = P(A|Succ)T_{succ,A} + P(B|Succ)T_{succ,B}$
+			\item[] $E[T_{fail}] = P(A|Fail)T_{fail,A} + P(B|Fail)T_{fail,B}$
+			\item[] \textit{Bayes' Rule Helper:} $P(A|Succ) = \frac{P(Succ|A) \cdot q}{P_{tot}}$.
+			\item \textbf{Step 3 (Final):} $T_{avg} = \left(\frac{1}{P_{tot}} - 1\right) E[T_{fail}] + E[T_{succ}]$.
+			\item \textbf{Result:} $Goodput = \frac{L/R}{T_{avg}}$.
+		\end{itemize}
+	\item When sending a packet with additional validity data (2D parity, checksum), this data isn't part of the effective payload (but is part of the total bits sent).
 	\item In Traffic Engineering, try to locate the bottleneck using cuts; consider using the commodities vertices;
 	\item In BGP we can define multiple IP prefixes for one AS, and give different policies (or priorities) to each prefix, from a different AS, hence splitting traffic based on prefix as well.
 \end{itemize}

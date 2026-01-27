@@ -170,17 +170,21 @@ Allows multiple unacknowledged packets to be "in-flight" to increase utilization
 \end{itemize}
 
 \begin{center}
-\renewcommand{\arraystretch}{1.15}
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{p{0.22\columnwidth}|p{0.34\columnwidth}|p{0.34\columnwidth}}
-\textbf{Criteria} & \textbf{Selective Repeat} & \textbf{Go-Back-N} \\
-\hline
-Bandwidth utilization & Retransmits only lost packets & May retransmit already received packets \\
-Window sizes & Sender: $N$, Receiver: $N$ & Sender: $N$, Receiver: $1$ \\
-Sequence numbers & $2N$ & $N+1$ \\
-Out-of-order handling & Buffers and tracks out-of-order packets & No buffering; accepts only in-order \\
-Receiver storage & Stores out-of-order until missing arrives & No need to store (sender may resend) \\
-\end{tabular}
+\noindent\makebox[\columnwidth][c]{%
+	\renewcommand{\arraystretch}{1.4}
+	\setlength{\tabcolsep}{1pt}
+	\resizebox{1.04\columnwidth}{!}{
+	\begin{tabular}{l|l|c|l}
+		\textbf{Criteria} & \textbf{Selective Repeat} & \textbf{Go-Back-N} \\
+		\hline
+		Bandwidth utilization & Retransmits only lost packets & May retransmit already received packets \\
+		Window sizes & Sender: $N$, Receiver: $N$ & Sender: $N$, Receiver: $1$ \\
+		Sequence numbers & $2N$ & $N+1$ \\
+		Out-of-order handling & Buffers and tracks out-of-order packets & No buffering; accepts only in-order \\
+		Receiver storage & Stores out-of-order until missing arrives & No need to store (sender may resend) \\
+	\end{tabular}
+	}
+}
 \end{center}
 
 \subsubsection{Implementation \& Relation to TCP}
